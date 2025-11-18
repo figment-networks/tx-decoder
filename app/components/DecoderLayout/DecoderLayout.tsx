@@ -1,10 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React from "react";
 
 import Icon, { IconName } from "../Icon/Icon";
+import ToggleGroup, { ToggleGroupItem } from "../ToggleGroup/toggleGroup";
 
 type DecoderLayoutProps = {
   icon: IconName;
@@ -63,26 +63,19 @@ const DecoderLayout: React.FC<DecoderLayoutProps> = ({
             <p className="text-gray-600">{description}</p>
           </div>
           <div className="flex items-center justify-center md:justify-end">
-            <div className="flex items-center gap-1 rounded-full border border-green-200 bg-white/70 p-1 shadow-sm">
-              {protocolOptions.map((option) => {
-                const isActive = pathname?.startsWith(option.href);
-
-                const baseClasses = "flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium transition";
-                const activeClasses = "border border-green-400 bg-green-200/60 text-green-900";
-                const inactiveClasses = "text-gray-600 hover:bg-green-50";
-
-                return (
-                  <Link key={option.id} href={option.href} prefetch={true}>
-                    <div
-                      className={`${baseClasses} ${isActive ? activeClasses : inactiveClasses}`}
-                    >
-                      <Icon icon={option.icon} />
-                      <span>{option.label}</span>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
+            <ToggleGroup
+              size="md"
+              value=""
+              items={protocolOptions.map(
+                (option): ToggleGroupItem => ({
+                  value: option.id,
+                  href: option.href,
+                  content: option.label,
+                  prependedIcon: <Icon icon={option.icon} />,
+                })
+              )}
+              isActive={(item) => pathname?.startsWith(item.href || "") ?? false}
+            />
           </div>
         </div>
         <div className="flex min-h-0 flex-1 flex-row gap-6">
