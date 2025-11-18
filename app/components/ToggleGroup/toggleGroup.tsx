@@ -1,8 +1,6 @@
 "use client";
 
 import React, { memo } from "react";
-import * as RadixToggleGroup from "@radix-ui/react-toggle-group";
-import { twMerge as tw } from "tailwind-merge";
 
 export type ToggleGroupItem = {
   content: React.ReactNode;
@@ -23,88 +21,38 @@ const ToggleGroup: React.FC<ToggleGroupProps> = ({
   value,
   testId,
 }) => {
-  const selectedRef = React.useRef<HTMLButtonElement | null>(null);
-  const [isInitialized, setIsInitialized] = React.useState(false);
-  const [width, setWidth] = React.useState(0);
-  const [offset, setOffset] = React.useState(0);
-
-  const handleValueChange = (nextValue: string) => {
-    if (!isInitialized) {
-      setIsInitialized(true);
-    }
-
-    if (nextValue !== "") {
-      onValueChange(nextValue);
-    }
-  };
-
-  React.useEffect(() => {
-    if (selectedRef.current) {
-      const itemRect = selectedRef.current.getBoundingClientRect();
-      const toggleRect =
-        selectedRef.current.parentElement?.getBoundingClientRect();
-
-      if (!toggleRect) {
-        return;
-      }
-
-      setWidth(Math.max(itemRect.width - 2, 0));
-      setOffset(itemRect.left - toggleRect.left + 1);
-    }
-  }, [value, items]);
-
   return (
     <div
-      className={tw(
-        "relative w-fit h-fit overflow-x-auto rounded-full bg-basic-100"
-      )}
+      className="flex items-center gap-0.5 rounded-full border border-green-200 bg-white/70 p-0.5 shadow-sm"
       data-testid={testId}
       role="tablist"
       aria-orientation="horizontal"
     >
-      <RadixToggleGroup.Root
-        type="single"
-        onValueChange={handleValueChange}
-        value={value}
-        className="flex flex-nowrap"
-      >
-        {items.map((item) => {
-          const isSelectedOption = item.value === value;
-          const itemTextColor = isSelectedOption
-            ? "text-green-1000"
-            : "text-basic-800";
+      {items.map((item) => {
+        const isActive = item.value === value;
 
-          return (
-            <RadixToggleGroup.Item
-              key={item.value}
-              value={item.value}
-              className={tw(
-                "relative z-[1] flex flex-shrink-0 items-center gap-1 pb-0.5 px-4 font-medium",
-                "transition-colors duration-150",
-                "text-sm",
-                itemTextColor
-              )}
-              ref={value === item.value ? selectedRef : null}
-            >
-              {item.prependedIcon && (
-                <span className="flex items-center" aria-hidden>
-                  {item.prependedIcon}
-                </span>
-              )}
-              <span className="contents">{item.content}</span>
-            </RadixToggleGroup.Item>
-          );
-        })}
-      </RadixToggleGroup.Root>
-      <div
-        style={{ width: `${width}px`, transform: `translateX(${offset}px)` }}
-        className={tw(
-          "pointer-events-none absolute inset-x-0 top-[1px] h-6 rounded-full",
-          isInitialized && "transition-all duration-300",
-          "bg-green-100 outline outline-1 outline-green-300"
-        )}
-        aria-hidden
-      />
+        const baseClasses = "flex items-center gap-1.5 rounded-full px-2 py-1 text-xs font-medium transition cursor-pointer";
+        const activeClasses = "border border-green-400 bg-green-200/60 text-green-900";
+        const inactiveClasses = "text-gray-600 hover:bg-green-50";
+
+        return (
+          <button
+            key={item.value}
+            type="button"
+            onClick={() => onValueChange(item.value)}
+            className={`${baseClasses} ${isActive ? activeClasses : inactiveClasses}`}
+            role="tab"
+            aria-selected={isActive}
+          >
+            {item.prependedIcon && (
+              <span className="flex items-center" aria-hidden>
+                {item.prependedIcon}
+              </span>
+            )}
+            <span>{item.content}</span>
+          </button>
+        );
+      })}
     </div>
   );
 };

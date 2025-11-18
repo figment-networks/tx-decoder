@@ -14,7 +14,7 @@ import type { ViewMode } from "../types";
 import DecoderLayout from "../components/DecoderLayout/DecoderLayout";
 import InputText from "../components/InputText/inputText";
 import ToggleGroup from "../components/ToggleGroup/toggleGroup";
-import SolanaInstructionCard from "../containers/SolanaInstructionCard/solanaInstructionCard";
+import SolanaInstructionCard from "./components/SolanaInstructionCard/solanaInstructionCard";
 import { decodeSolanaTransaction } from "../lib/tx-decoder/solana/decoders";
 import type { DecodedTransaction } from "../lib/tx-decoder/types";
 
