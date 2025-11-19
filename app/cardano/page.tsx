@@ -11,9 +11,9 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import JsonView from "@uiw/react-json-view";
 
 import type { ViewMode } from "../types";
-import DecoderLayout from "../components/DecoderLayout/DecoderLayout";
-import InputText from "../components/InputText/inputText";
-import ToggleGroup from "../components/ToggleGroup/toggleGroup";
+import DecoderLayout from "../components/decoder-layout/deconder-layout";
+import InputText from "../components/input-text/input-text";
+import ToggleGroup from "../components/toggle-group/toggle-group";
 import { decodeCardanoTransaction } from "../lib/tx-decoder/cardano/decoders";
 import type {
   CardanoDecodedTransaction,

@@ -7,7 +7,7 @@ import {
   Transaction,
 } from "@solana/web3.js";
 
-import type { DecodedInstruction, DecodedTransaction } from "../types";
+import type { SolanaDecodedInstruction, SolanaDecodedTransaction } from "../types";
 import bs58 from "bs58";
 
 const getStakeInstructionTypeMap: () => Record<number, string> = () => ({
@@ -45,7 +45,7 @@ export const getProgramName = (programId: string): string => {
 export const decodeInstruction = (
   instruction: any,
   programId: string
-): DecodedInstruction => {
+): SolanaDecodedInstruction => {
   if (programId === StakeProgram.programId.toBase58()) {
     return decodeStakeInstruction(instruction);
   }
@@ -61,7 +61,7 @@ export const decodeInstruction = (
   return { type: "Unknown" };
 };
 
-const decodeStakeInstruction = (instruction: any): DecodedInstruction => {
+const decodeStakeInstruction = (instruction: any): SolanaDecodedInstruction => {
   const dataBuffer = Buffer.from(instruction.data);
   if (dataBuffer.length === 0) {
     return { type: "Unknown" };
@@ -70,7 +70,7 @@ const decodeStakeInstruction = (instruction: any): DecodedInstruction => {
   const instructionCode = dataBuffer.readUInt32LE(0);
   const typeMap = getStakeInstructionTypeMap();
 
-  const decoded: DecodedInstruction = {
+  const decoded: SolanaDecodedInstruction = {
     type: typeMap[instructionCode] ?? "Unknown",
     instructionCode,
   };
@@ -135,7 +135,7 @@ const decodeStakeInstruction = (instruction: any): DecodedInstruction => {
   return decoded;
 };
 
-const decodeSystemInstruction = (instruction: any): DecodedInstruction => {
+const decodeSystemInstruction = (instruction: any): SolanaDecodedInstruction => {
   const dataBuffer = Buffer.from(instruction.data);
   if (dataBuffer.length === 0) {
     return { type: "Unknown" };
@@ -144,7 +144,7 @@ const decodeSystemInstruction = (instruction: any): DecodedInstruction => {
   const instructionCode = dataBuffer.readUInt32LE(0);
   const typeMap = getSystemInstructionTypeMap();
 
-  const decoded: DecodedInstruction = {
+  const decoded: SolanaDecodedInstruction = {
     type: typeMap[instructionCode] ?? "Unknown",
     instructionCode,
   };
@@ -178,14 +178,14 @@ const decodeSystemInstruction = (instruction: any): DecodedInstruction => {
 
 const decodeComputeBudgetInstruction = (
   instruction: any
-): DecodedInstruction => {
+): SolanaDecodedInstruction => {
   const dataBuffer = Buffer.from(instruction.data);
   if (dataBuffer.length === 0) {
     return { type: "Unknown" };
   }
 
   const instructionCode = dataBuffer.readUInt8(0);
-  const decoded: DecodedInstruction = {
+  const decoded: SolanaDecodedInstruction = {
     type: "Unknown",
     instructionCode,
   };
@@ -336,7 +336,7 @@ const createTransactionFromPayload = (payload: string): Transaction => {
 
 export const decodeSolanaTransaction = (
   payload: string
-): DecodedTransaction => {
+): SolanaDecodedTransaction => {
   const transaction = createTransactionFromPayload(payload);
 
   return {

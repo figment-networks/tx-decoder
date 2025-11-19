@@ -1,33 +1,33 @@
-export interface SignatureInfo {
+interface SolanaSignatureInfo {
   publicKey: string | null;
   signature: string | null;
 }
 
-export interface AccountMetadata {
+interface SolanaAccountMetadata {
   pubkey: string;
   isSigner: boolean;
   isWritable: boolean;
 }
 
-export interface DecodedInstruction {
+export interface SolanaDecodedInstruction {
   type: string;
   instructionCode?: number;
   [key: string]: any;
 }
 
-export interface InstructionData {
+export interface SolanaInstructionData {
   index: number;
   programId: string;
   programName: string;
-  decoded: DecodedInstruction;
-  keys: AccountMetadata[];
+  decoded: SolanaDecodedInstruction;
+  keys: SolanaAccountMetadata[];
 }
 
-export interface DecodedTransaction {
+export interface SolanaDecodedTransaction {
   feePayer: string | null;
   recentBlockhash: string | null;
-  signatures: SignatureInfo[];
-  instructions: InstructionData[];
+  signatures: SolanaSignatureInfo[];
+  instructions: SolanaInstructionData[];
 }
 
 export type CardanoValue =

@@ -3,8 +3,8 @@
 import { usePathname } from "next/navigation";
 import React from "react";
 
-import Icon, { IconName } from "../Icon/Icon";
-import ToggleGroup, { ToggleGroupItem } from "../ToggleGroup/toggleGroup";
+import Icon, { IconName } from "../icon/icon";
+import ToggleGroup, { ToggleGroupItem } from "../toggle-group/toggle-group";
 
 type DecoderLayoutProps = {
   icon: IconName;

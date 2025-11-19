@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import type { KeyboardEvent, ReactNode } from "react";
-import { InstructionData } from "../../../lib/tx-decoder/types";
+import { SolanaInstructionData } from "../../../lib/tx-decoder/types";
 import JsonView from "@uiw/react-json-view";
-import Icon from "../../../components/Icon/Icon";
+import Icon from "../../../components/icon/icon";
 
 const SOLANA_EXPLORER_BASE_URL = "https://explorer.solana.com/address";
 
@@ -32,7 +32,7 @@ const AddressLink = ({ address }: { address: string | undefined }) => {
 };
 
 const formatInstructionDescription = (
-  instruction: InstructionData,
+  instruction: SolanaInstructionData,
   feePayer: string | null
 ): ReactNode => {
   const { programName, decoded } = instruction;
@@ -196,7 +196,7 @@ const SolanaInstructionCard = ({
   instruction,
   feePayer,
 }: {
-  instruction: InstructionData;
+  instruction: SolanaInstructionData;
   feePayer: string | null;
 }) => {
   const [isExpanded, setIsExpanded] = useState(true);

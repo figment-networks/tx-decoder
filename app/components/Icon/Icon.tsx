@@ -4,8 +4,8 @@ import React from "react";
 import { MdKeyboardArrowDown, MdKeyboardArrowUp } from "react-icons/md";
 import { twMerge as tw } from "tailwind-merge";
 
-import SolanaIcon from "./icons/SolanaIcon";
-import CardanoIcon from "./icons/CardanoIcon";
+import SolanaIcon from "../icon/icons/solana-icon";
+import CardanoIcon from "../icon/icons/cardano-icon";
 
 export const icons = Object.freeze({
   Solana: SolanaIcon,
