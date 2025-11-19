@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import type { KeyboardEvent, ReactNode } from "react";
-import { SolanaInstructionData } from "../../../lib/tx-decoder/types";
+import { SolanaInstructionData } from "../../../../lib/tx-decoder/types";
 import JsonView from "@uiw/react-json-view";
-import Icon from "../../../components/icon/icon";
+import Icon from "../../../../components/icon/icon";
 
 const SOLANA_EXPLORER_BASE_URL = "https://explorer.solana.com/address";
 

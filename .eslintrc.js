@@ -6,7 +6,6 @@ module.exports = {
   },
   extends: [
     "next/core-web-vitals",
-    "turbo",
     "plugin:json/recommended",
     "plugin:prettier/recommended",
     "eslint:recommended",
@@ -18,7 +17,6 @@ module.exports = {
   },
   plugins: ["react", "@typescript-eslint"],
   rules: {
-    "turbo/no-undeclared-env-vars": "error",
     "@typescript-eslint/no-non-null-assertion": "off",
     "react/prop-types": "off",
     "import/no-extraneous-dependencies": "off",

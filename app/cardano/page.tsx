@@ -11,14 +11,14 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import JsonView from "@uiw/react-json-view";
 
 import type { ViewMode } from "../types";
-import DecoderLayout from "../components/decoder-layout/deconder-layout";
-import InputText from "../components/input-text/input-text";
-import ToggleGroup from "../components/toggle-group/toggle-group";
-import { decodeCardanoTransaction } from "../lib/tx-decoder/cardano/decoders";
+import DecoderLayout from "../../components/decoder-layout/deconder-layout";
+import InputText from "../../components/input-text/input-text";
+import ToggleGroup from "../../components/toggle-group/toggle-group";
+import { decodeCardanoTransaction } from "../../lib/tx-decoder/cardano/decoders";
 import type {
   CardanoDecodedTransaction,
   CardanoValue,
-} from "../lib/tx-decoder/types";
+} from "../../lib/tx-decoder/types";
 
 const stringifyValue = (value: unknown): string => {
   const serialized = JSON.stringify(value, null, 2);

@@ -11,12 +11,12 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import JsonView from "@uiw/react-json-view";
 
 import type { ViewMode } from "../types";
-import DecoderLayout from "../components/decoder-layout/deconder-layout";
-import InputText from "../components/input-text/input-text";
-import ToggleGroup from "../components/toggle-group/toggle-group";
+import DecoderLayout from "../../components/decoder-layout/deconder-layout";
+import InputText from "../../components/input-text/input-text";
+import ToggleGroup from "../../components/toggle-group/toggle-group";
 import SolanaInstructionCard from "./components/solana-instruction-card/solana-instruction-card";
-import { decodeSolanaTransaction } from "../lib/tx-decoder/solana/decoders";
-import type { SolanaDecodedTransaction } from "../lib/tx-decoder/types";
+import { decodeSolanaTransaction } from "../../lib/tx-decoder/solana/decoders";
+import type { SolanaDecodedTransaction } from "../../lib/tx-decoder/types";
 
 const SolanaDecoderPageContent = () => {
   const router = useRouter();
