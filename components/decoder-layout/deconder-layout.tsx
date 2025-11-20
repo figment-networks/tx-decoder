@@ -1,0 +1,96 @@
+"use client";
+
+import { usePathname } from "next/navigation";
+import React from "react";
+
+import Icon, { IconName } from "../icon/icon";
+import ToggleGroup, { ToggleGroupItem } from "../toggle-group/toggle-group";
+import { Protocol, protocolDisplayName } from "@app/app/types";
+
+type DecoderLayoutProps = {
+  icon: IconName;
+  title: string;
+  description: string;
+  inputTitle: string;
+  inputContent: React.ReactNode;
+  outputTitle: string;
+  outputContent: React.ReactNode;
+  outputToolbar?: React.ReactNode;
+};
+
+type ProtocolOption = {
+  href: string;
+  protocol: string;
+};
+
+const protocolOptions: readonly ProtocolOption[] = [
+  {
+    href: `/${Protocol.CARDANO.toLowerCase()}`,
+    protocol: protocolDisplayName[Protocol.CARDANO],
+  },
+  {
+    href: `/${Protocol.SOLANA.toLowerCase()}`,
+    protocol: protocolDisplayName[Protocol.SOLANA],
+  },
+];
+
+const DecoderLayout: React.FC<DecoderLayoutProps> = ({
+  icon,
+  title,
+  description,
+  inputTitle,
+  inputContent,
+  outputTitle,
+  outputContent,
+  outputToolbar,
+}) => {
+  const pathname = usePathname();
+
+  return (
+    <div className="relative flex flex-col items-center h-screen bg-green-100 overflow-hidden">
+      <div className="relative z-[1] w-full h-full flex flex-col gap-6 px-6 py-6">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-col items-center justify-center gap-2 text-center md:items-start md:text-left">
+            <div className="mb-2 flex flex-shrink-0 items-center justify-center gap-3 md:justify-start">
+              <Icon icon={icon} className="text-4xl" />
+              <h1 className="text-3xl font-bold text-gray-900">{title}</h1>
+            </div>
+            <p className="text-gray-600">{description}</p>
+          </div>
+          <div className="flex items-center justify-center md:justify-end">
+            <ToggleGroup
+              size="md"
+              value=""
+              items={protocolOptions.map(
+                (option): ToggleGroupItem => ({
+                  value: option.protocol.toLowerCase(),
+                  href: option.href,
+                  content: option.protocol,
+                  prependedIcon: <Icon icon={option.protocol as IconName}className="text-2xl" />,
+                })
+              )}
+              isActive={(item) => pathname?.startsWith(item.href || "") ?? false}
+            />
+          </div>
+        </div>
+        <div className="flex min-h-0 flex-1 flex-row gap-6">
+          <section className="flex min-w-0 flex-1 flex-col">
+            <h2 className="mb-2 text-xl font-bold text-gray-900">{inputTitle}</h2>
+            <div className="flex min-h-0 flex-1 flex-col">{inputContent}</div>
+          </section>
+
+          <section className="flex min-w-0 flex-1 flex-col">
+            <div className="mb-2 flex flex-shrink-0 items-center justify-between">
+              <h2 className="text-xl font-bold text-gray-900">{outputTitle}</h2>
+              {outputToolbar}
+            </div>
+            {outputContent}
+          </section>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default DecoderLayout;
+
