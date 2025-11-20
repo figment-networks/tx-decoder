@@ -5,8 +5,7 @@ export enum Protocol {
     CARDANO = "CARDANO",
   }
   
-  export const protocolDisplayName: Record<Protocol, string> = {
-    [Protocol.SOLANA]: "Solana",
-    [Protocol.CARDANO]: "Cardano",
-  };
-  
+export const protocolDisplayName: Record<Protocol, string> = {
+  [Protocol.SOLANA]: "Solana",
+  [Protocol.CARDANO]: "Cardano",
+};

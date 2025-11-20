@@ -5,6 +5,7 @@ import React from "react";
 
 import Icon, { IconName } from "../icon/icon";
 import ToggleGroup, { ToggleGroupItem } from "../toggle-group/toggle-group";
+import { Protocol, protocolDisplayName } from "@app/app/types";
 
 type DecoderLayoutProps = {
   icon: IconName;
@@ -18,24 +19,18 @@ type DecoderLayoutProps = {
 };
 
 type ProtocolOption = {
-  id: string;
   href: string;
-  label: string;
-  icon: IconName;
+  protocol: string;
 };
 
 const protocolOptions: readonly ProtocolOption[] = [
   {
-    id: "cardano",
-    href: "/cardano",
-    label: "Cardano",
-    icon: "Cardano",
+    href: `/${Protocol.CARDANO.toLowerCase()}`,
+    protocol: protocolDisplayName[Protocol.CARDANO],
   },
   {
-    id: "solana",
-    href: "/solana",
-    label: "Solana",
-    icon: "Solana",
+    href: `/${Protocol.SOLANA.toLowerCase()}`,
+    protocol: protocolDisplayName[Protocol.SOLANA],
   },
 ];
 
@@ -57,7 +52,7 @@ const DecoderLayout: React.FC<DecoderLayoutProps> = ({
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-col items-center justify-center gap-2 text-center md:items-start md:text-left">
             <div className="mb-2 flex flex-shrink-0 items-center justify-center gap-3 md:justify-start">
-              <Icon icon={icon} />
+              <Icon icon={icon} className="text-4xl" />
               <h1 className="text-3xl font-bold text-gray-900">{title}</h1>
             </div>
             <p className="text-gray-600">{description}</p>
@@ -68,10 +63,10 @@ const DecoderLayout: React.FC<DecoderLayoutProps> = ({
               value=""
               items={protocolOptions.map(
                 (option): ToggleGroupItem => ({
-                  value: option.id,
+                  value: option.protocol.toLowerCase(),
                   href: option.href,
-                  content: option.label,
-                  prependedIcon: <Icon icon={option.icon} />,
+                  content: option.protocol,
+                  prependedIcon: <Icon icon={option.protocol as IconName}className="text-2xl" />,
                 })
               )}
               isActive={(item) => pathname?.startsWith(item.href || "") ?? false}
