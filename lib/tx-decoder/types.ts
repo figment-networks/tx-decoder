@@ -72,3 +72,21 @@ export interface CardanoDecodedTransaction {
   error?: string;
   message?: string;
 }
+
+export interface SuiDecodedTransaction {
+  version: number;
+  sender: string;
+  expiration: any;
+  gasData: {
+    payment: Array<{
+      objectId: string;
+      version: string;
+      digest: string;
+    }>;
+    owner: string;
+    price: string;
+    budget: string;
+  };
+  inputs: any[];
+  commands: any[];
+}
