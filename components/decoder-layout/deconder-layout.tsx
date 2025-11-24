@@ -25,12 +25,16 @@ type ProtocolOption = {
 
 const protocolOptions: readonly ProtocolOption[] = [
   {
+    href: `/${Protocol.SOLANA.toLowerCase()}`,
+    protocol: protocolDisplayName[Protocol.SOLANA],
+  },
+  {
     href: `/${Protocol.CARDANO.toLowerCase()}`,
     protocol: protocolDisplayName[Protocol.CARDANO],
   },
   {
-    href: `/${Protocol.SOLANA.toLowerCase()}`,
-    protocol: protocolDisplayName[Protocol.SOLANA],
+    href: `/${Protocol.SUI.toLowerCase()}`,
+    protocol: protocolDisplayName[Protocol.SUI],
   },
 ];
 
