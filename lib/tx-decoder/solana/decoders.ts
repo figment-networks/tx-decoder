@@ -232,7 +232,7 @@ type FireblocksMessagePayload = {
   instructions: FireblocksCompiledInstruction[];
 };
 
-const isHexPayload = (value: string): boolean => {
+export const isHexPayload = (value: string): boolean => {
   return /^[0-9a-fA-F]+$/.test(value) && value.length % 2 === 0;
 };
 
@@ -315,7 +315,7 @@ const createTransactionFromFireblocksJson = (value: string): Transaction => {
   return Transaction.populate(message, signaturesSource);
 };
 
-const createTransactionFromPayload = (payload: string): Transaction => {
+export const createTransactionFromPayload = (payload: string): Transaction => {
   const trimmedPayload = payload.trim();
   if (!trimmedPayload) {
     throw new Error("Transaction payload is empty");
