@@ -13,6 +13,7 @@ import JsonView from "@uiw/react-json-view";
 import DecoderLayout from "../../components/decoder-layout/deconder-layout";
 import InputText from "../../components/input-text/input-text";
 import { decodeCardanoTransaction } from "../../lib/tx-decoder/cardano/decoders";
+import computeAdaHash from "../../lib/tx-decoder/cardano/compute-hash";
 import type {
   CardanoDecodedTransaction,
 } from "../../lib/tx-decoder/types";
@@ -25,6 +26,7 @@ const CardanoDecoderPageContent = () => {
   const [decodedTransaction, setDecodedTransaction] =
     useState<CardanoDecodedTransaction | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [transactionHash, setTransactionHash] = useState<string | null>(null);
 
   const updateUrl = useCallback(
     (value: string) => {
@@ -42,10 +44,11 @@ const CardanoDecoderPageContent = () => {
   );
 
   const decodeAndSetTransaction = useCallback(
-    (value: string) => {
+    async (value: string) => {
       const trimmedValue = value.trim();
       setRawTransaction(trimmedValue);
       setError(null);
+      setTransactionHash(null);
 
       if (!trimmedValue) {
         setDecodedTransaction(null);
@@ -57,6 +60,14 @@ const CardanoDecoderPageContent = () => {
         const decoded = decodeCardanoTransaction(trimmedValue);
         setDecodedTransaction(decoded);
         updateUrl(trimmedValue);
+        
+        // Compute hash
+        try {
+          const hash = computeAdaHash(trimmedValue);
+          setTransactionHash(hash);
+        } catch {
+          setTransactionHash(null);
+        }
       } catch (decodeError) {
         const message =
           decodeError instanceof Error
@@ -64,6 +75,7 @@ const CardanoDecoderPageContent = () => {
             : "Failed to decode transaction";
         setError(message);
         setDecodedTransaction(null);
+        setTransactionHash(null);
       }
     },
     [updateUrl]
@@ -75,14 +87,14 @@ const CardanoDecoderPageContent = () => {
     }
     const txParam = searchParams.get("tx");
     if (txParam) {
-      decodeAndSetTransaction(txParam);
+      void decodeAndSetTransaction(txParam);
     }
   }, [decodeAndSetTransaction, searchParams]);
 
   const handleTransactionChange = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    decodeAndSetTransaction(event.target.value);
+    void decodeAndSetTransaction(event.target.value);
   };
 
   const renderOutputContent = () => {
@@ -124,6 +136,7 @@ const CardanoDecoderPageContent = () => {
           </div>
         </div>
       }
+      transactionHash={transactionHash}
       outputContent={
         <div className="flex min-h-0 flex-1 flex-col gap-3">
           {renderOutputContent()}
