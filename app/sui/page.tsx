@@ -104,7 +104,6 @@ const SuiDecoderPageContent = () => {
       icon="Sui"
       title="Sui Transaction Decoder"
       description="Decode and analyze Sui transactions."
-      inputTitle="Decode a transaction"
       inputContent={
         <div className="flex min-h-0 flex-1 flex-col">
           <div className="flex min-h-0 flex-1 [&_textarea]:min-h-[400px] [&_textarea]:bg-white/80 [&_textarea]:text-sm [&_textarea]:font-mono">
@@ -119,7 +118,6 @@ const SuiDecoderPageContent = () => {
           </div>
         </div>
       }
-      outputTitle="Output"
       outputContent={
         <div className="flex min-h-0 flex-1 flex-col gap-3">
           {renderOutputContent()}

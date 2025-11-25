@@ -213,7 +213,7 @@ const SolanaInstructionCard = ({
   };
 
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded overflow-hidden shadow-sm">
+    <div className="bg-white/80 backdrop-blur-sm rounded overflow-hidden border border-gray-200">
       {/* Header */}
       <button
         type="button"

@@ -101,7 +101,7 @@ const SolanaDecoderPageContent = () => {
       }
       return (
         <div className="min-h-0 w-full flex-1 overflow-auto">
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
             {decodedTransaction.instructions.map((instruction) => (
               <SolanaInstructionCard
                 key={`${instruction.index}-${instruction.programId}`}
@@ -130,7 +130,6 @@ const SolanaDecoderPageContent = () => {
       icon="Solana"
       title="Solana Transaction Decoder"
       description="Decode and analyze Solana transactions."
-      inputTitle="Decode a transaction"
       inputContent={
         <div className="flex min-h-0 flex-1 flex-col">
           <div className="flex min-h-0 flex-1 [&_textarea]:min-h-[400px] [&_textarea]:bg-white/80 [&_textarea]:text-sm [&_textarea]:font-mono">
@@ -145,7 +144,6 @@ const SolanaDecoderPageContent = () => {
           </div>
         </div>
       }
-      outputTitle="Output"
       outputToolbar={
         <ToggleGroup
           value={viewMode}
