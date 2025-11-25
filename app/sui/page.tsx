@@ -12,6 +12,7 @@ import JsonView from "@uiw/react-json-view";
 import DecoderLayout from "../../components/decoder-layout/deconder-layout";
 import InputText from "../../components/input-text/input-text";
 import { parseSuiTx } from "../../lib/tx-decoder/sui/decoder";
+import computeSuiHash from "../../lib/tx-decoder/sui/compute-hash";
 import type { SuiDecodedTransaction } from "../../lib/tx-decoder/types";
 
 const SuiDecoderPageContent = () => {
@@ -22,6 +23,7 @@ const SuiDecoderPageContent = () => {
   const [decodedTransaction, setDecodedTransaction] =
     useState<SuiDecodedTransaction | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [transactionHash, setTransactionHash] = useState<string | null>(null);
 
   const updateUrl = useCallback(
     (value: string) => {
@@ -41,6 +43,7 @@ const SuiDecoderPageContent = () => {
       const trimmedValue = value.trim();
       setRawTransaction(trimmedValue);
       setError(null);
+      setTransactionHash(null);
 
       if (!trimmedValue) {
         setDecodedTransaction(null);
@@ -51,11 +54,20 @@ const SuiDecoderPageContent = () => {
         const decoded = await parseSuiTx(trimmedValue);
         setDecodedTransaction(decoded as SuiDecodedTransaction);
         updateUrl(trimmedValue);
+        
+        // Compute hash
+        try {
+          const hash = await computeSuiHash(trimmedValue);
+          setTransactionHash(hash);
+        } catch {
+          setTransactionHash(null);
+        }
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : "Failed to decode transaction";
         setError(errorMessage);
         setDecodedTransaction(null);
+        setTransactionHash(null);
       }
     },
     [updateUrl]
@@ -118,6 +130,7 @@ const SuiDecoderPageContent = () => {
           </div>
         </div>
       }
+      transactionHash={transactionHash}
       outputContent={
         <div className="flex min-h-0 flex-1 flex-col gap-3">
           {renderOutputContent()}
