@@ -26,7 +26,7 @@ type MultiLineProps = BaseProps & {
 export type InputTextProps = SingleLineProps | MultiLineProps;
 
 const baseInputClasses =
-  "w-full appearance-none rounded border bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-0.5 focus:ring-green-1000 focus:border-green-1000 disabled:bg-gray-100 disabled:cursor-not-allowed";
+  "w-full appearance-none rounded-lg border bg-white text-gray-900  placeholder-gray-500 focus:outline-none focus:ring-0.5 focus:ring-green-1000 focus:border-gray-200 disabled:bg-gray-100 disabled:cursor-not-allowed";
 
 const InputText: React.FC<InputTextProps> = (props) => {
   const {

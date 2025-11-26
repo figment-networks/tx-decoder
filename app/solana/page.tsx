@@ -16,6 +16,7 @@ import InputText from "../../components/input-text/input-text";
 import ToggleGroup from "../../components/toggle-group/toggle-group";
 import SolanaInstructionCard from "./components/solana-instruction-card/solana-instruction-card";
 import { decodeSolanaTransaction } from "../../lib/tx-decoder/solana/decoders";
+import computeSolanaHash from "../../lib/tx-decoder/solana/compute-hash";
 import type { SolanaDecodedTransaction } from "../../lib/tx-decoder/types";
 
 const SolanaDecoderPageContent = () => {
@@ -27,6 +28,7 @@ const SolanaDecoderPageContent = () => {
     useState<SolanaDecodedTransaction | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("summary");
+  const [transactionHash, setTransactionHash] = useState<string | null>(null);
 
   const updateUrl = useCallback(
     (value: string) => {
@@ -42,10 +44,11 @@ const SolanaDecoderPageContent = () => {
   );
 
   const decodeAndSetTransaction = useCallback(
-    (value: string) => {
+    async (value: string) => {
       const trimmedValue = value.trim();
       setRawTransaction(trimmedValue);
       setError(null);
+      setTransactionHash(null);
 
       if (!trimmedValue) {
         setDecodedTransaction(null);
@@ -56,11 +59,20 @@ const SolanaDecoderPageContent = () => {
         const decoded = decodeSolanaTransaction(trimmedValue);
         setDecodedTransaction(decoded);
         updateUrl(trimmedValue);
+        
+        // Compute hash
+        try {
+          const hash = await computeSolanaHash(trimmedValue);
+          setTransactionHash(hash);
+        } catch {
+          setTransactionHash(null);
+        }
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : "Failed to decode transaction";
         setError(errorMessage);
         setDecodedTransaction(null);
+        setTransactionHash(null);
       }
     },
     [updateUrl]
@@ -72,14 +84,14 @@ const SolanaDecoderPageContent = () => {
     }
     const txParam = searchParams.get("tx");
     if (txParam) {
-      decodeAndSetTransaction(txParam);
+      void decodeAndSetTransaction(txParam);
     }
   }, [decodeAndSetTransaction, searchParams]);
 
   const handleTransactionChange = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    decodeAndSetTransaction(event.target.value);
+    void decodeAndSetTransaction(event.target.value);
   };
 
   const renderOutputContent = () => {
@@ -101,7 +113,7 @@ const SolanaDecoderPageContent = () => {
       }
       return (
         <div className="min-h-0 w-full flex-1 overflow-auto">
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
             {decodedTransaction.instructions.map((instruction) => (
               <SolanaInstructionCard
                 key={`${instruction.index}-${instruction.programId}`}
@@ -130,7 +142,6 @@ const SolanaDecoderPageContent = () => {
       icon="Solana"
       title="Solana Transaction Decoder"
       description="Decode and analyze Solana transactions."
-      inputTitle="Decode a transaction"
       inputContent={
         <div className="flex min-h-0 flex-1 flex-col">
           <div className="flex min-h-0 flex-1 [&_textarea]:min-h-[400px] [&_textarea]:bg-white/80 [&_textarea]:text-sm [&_textarea]:font-mono">
@@ -145,7 +156,6 @@ const SolanaDecoderPageContent = () => {
           </div>
         </div>
       }
-      outputTitle="Output"
       outputToolbar={
         <ToggleGroup
           value={viewMode}
@@ -156,6 +166,7 @@ const SolanaDecoderPageContent = () => {
           ]}
         />
       }
+      transactionHash={transactionHash}
       outputContent={
         <div className="flex min-h-0 flex-1 flex-col gap-3">
           {renderOutputContent()}

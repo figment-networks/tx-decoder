@@ -1,13 +1,13 @@
 import { Transaction } from '@mysten/sui/transactions';
 import { fromHex } from '@mysten/sui/utils';
 
-const isHexPayload = (value: string): boolean => {
+export const isHexPayload = (value: string): boolean => {
   const trimmed = value.trim();
   const cleanValue = trimmed.startsWith('0x') ? trimmed.slice(2) : trimmed;
   return /^[0-9a-fA-F]+$/.test(cleanValue) && cleanValue.length % 2 === 0;
 };
 
-const isFireblocksJsonPayload = (value: string): boolean => {
+export const isFireblocksJsonPayload = (value: string): boolean => {
   const trimmed = value.trim();
   if (!trimmed.startsWith('{')) {
     return false;
@@ -27,7 +27,7 @@ const isFireblocksJsonPayload = (value: string): boolean => {
   }
 };
 
-const createTransactionFromFireblocksJson = (value: string): Uint8Array => {
+export const createTransactionFromFireblocksJson = (value: string): Uint8Array => {
   const parsed = JSON.parse(value) as Record<string, unknown>;
   
   // Check for transaction field at root or in message

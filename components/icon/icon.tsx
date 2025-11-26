@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { MdKeyboardArrowDown, MdKeyboardArrowUp } from "react-icons/md";
+import { MdKeyboardArrowDown, MdKeyboardArrowUp, MdCheck, MdContentCopy } from "react-icons/md";
 import { twMerge as tw } from "tailwind-merge";
 
 import SolanaIcon from "./icons/solana-icon";
@@ -14,6 +14,8 @@ export const icons = Object.freeze({
   Sui: SuiIcon,
   MdKeyboardArrowUp,
   MdKeyboardArrowDown,
+  MdCheck,
+  MdContentCopy,
 });
 
 export type IconName = keyof typeof icons;
