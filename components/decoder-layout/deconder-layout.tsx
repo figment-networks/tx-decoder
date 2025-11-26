@@ -67,11 +67,10 @@ const TransactionHashDisplay: React.FC<{ hash: string | null }> = ({ hash }) => 
         className="text-gray-400 hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
         aria-label="Copy transaction hash"
       >
-        {isCopied ? (
-          <MdCheck className="w-4 h-4" /> 
-        ) : (
-          <MdContentCopy className="w-4 h-4" /> 
-        )}
+        <Icon
+          icon={isCopied ? "MdCheck" : "MdContentCopy"}
+          className="w-4 h-4"
+        />
       </button>
     </div>
   );
