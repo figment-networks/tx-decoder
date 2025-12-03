@@ -102,12 +102,12 @@ const DecoderLayout: React.FC<DecoderLayoutProps> = ({
             </div>
             <p className="text-gray-600">Decode your transaction data into a human-readable format.</p>
           </div>
-          <div className="flex flex-col gap-2 justify-center md:justify-end">
+          <div className="flex flex-col items-center gap-2 text-center lg:items-end lg:text-right">
             <a
               href="https://github.com/figment-networks/tx-decoder"
               target="_blank"
               rel="noreferrer"
-              className="flex items-center justify-end gap-2 text-sm text-gray-600 p-1 hover:text-gray-800"
+              className="flex items-center justify-center gap-2 p-1 text-sm text-gray-600 hover:text-gray-800 lg:justify-end"
             >
               <Icon icon="Github" className="text-lg" />
               View Source Code on GitHub
@@ -127,13 +127,13 @@ const DecoderLayout: React.FC<DecoderLayoutProps> = ({
             />
           </div>
         </div>
-        <div className="flex min-h-0 flex-1 flex-row gap-4">
-          <section className="flex min-w-0 flex-1 flex-col gap-2 rounded-lg border border-gray-200 bg-white/70 px-2 py-2 shadow-sm">
+        <div className="flex min-h-0 flex-1 flex-col gap-4 md:flex-row md:overflow-visible">
+          <section className="flex min-w-0 flex-1 flex-col gap-2 rounded-lg border border-gray-200 bg-white/70 px-2 py-2 shadow-sm overflow-hidden">
             <div className="flex h-8 flex-shrink-0 items-center">
               <Icon icon={icon} className="text-3xl" />
               <h2 className="text-xl font-bold text-gray-900">Decode Transaction</h2>
             </div>
-            <div className="flex min-h-0 flex-1 flex-col [&_textarea]:min-h-[400px] [&_textarea]:bg-white/80 [&_textarea]:text-sm [&_textarea]:font-mono">
+            <div className="flex min-h-0 flex-1 flex-col overflow-auto [&_textarea]:min-h-[400px] [&_textarea]:bg-white/80 [&_textarea]:text-sm [&_textarea]:font-mono">
               <InputText
                 id={inputId ?? "raw-transaction-input"}
                 multiline
@@ -144,7 +144,7 @@ const DecoderLayout: React.FC<DecoderLayoutProps> = ({
               />
             </div>
           </section>
-          <section className="flex min-w-0 flex-1 flex-col gap-2 rounded-lg border border-gray-200 bg-white/70 px-2 py-2 shadow-sm">
+          <section className="flex min-w-0 flex-1 flex-col gap-2 rounded-lg border border-gray-200 bg-white/70 px-2 py-2 shadow-sm overflow-hidden">
             <div className="flex h-8 flex-shrink-0 items-center justify-between align-middle">
               <h2 className="text-xl font-bold text-gray-900">Output</h2>
               {outputToolbar}
