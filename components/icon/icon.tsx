@@ -2,6 +2,7 @@
 
 import React from "react";
 import { MdKeyboardArrowDown, MdKeyboardArrowUp, MdCheck, MdContentCopy } from "react-icons/md";
+import { FaGithub } from "react-icons/fa";
 import { twMerge as tw } from "tailwind-merge";
 
 import SolanaIcon from "./icons/solana-icon";
@@ -18,6 +19,7 @@ export const icons = Object.freeze({
   MdCheck,
   MdContentCopy,
   Figment: FigmentIcon,
+  Github: FaGithub,
 });
 
 export type IconName = keyof typeof icons;
