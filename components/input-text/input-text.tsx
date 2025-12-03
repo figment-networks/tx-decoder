@@ -26,7 +26,7 @@ type MultiLineProps = BaseProps & {
 export type InputTextProps = SingleLineProps | MultiLineProps;
 
 const baseInputClasses =
-  "w-full appearance-none rounded-lg border bg-white text-gray-900  placeholder-gray-500 focus:outline-none focus:ring-0.5 focus:ring-green-1000 focus:border-gray-200 disabled:bg-gray-100 disabled:cursor-not-allowed";
+  "w-full appearance-none rounded-lg border bg-white text-gray-900  placeholder-gray-500 focus:outline-none focus:ring-0.5 focus:ring-green-1000 focus:border-gray-200 disabled:bg-gray-100 disabled:cursor-not-allowed resize-none overflow-y-scroll h-full p-4";
 
 const InputText: React.FC<InputTextProps> = (props) => {
   const {
@@ -43,7 +43,6 @@ const InputText: React.FC<InputTextProps> = (props) => {
   const combinedClasses = [
     baseInputClasses,
     borderClassName ?? "border-green-1000",
-    props.multiline ? "min-h-[200px] p-4" : "h-12 px-4",
     className,
   ]
     .filter(Boolean)

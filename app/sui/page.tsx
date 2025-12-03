@@ -10,7 +10,6 @@ import {
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import JsonView from "@uiw/react-json-view";
 import DecoderLayout from "../../components/decoder-layout/deconder-layout";
-import InputText from "../../components/input-text/input-text";
 import { parseSuiTx } from "../../lib/tx-decoder/sui/decoder";
 import computeSuiHash from "../../lib/tx-decoder/sui/compute-hash";
 import type { SuiDecodedTransaction } from "../../lib/tx-decoder/types";
@@ -114,26 +113,11 @@ const SuiDecoderPageContent = () => {
   return (
     <DecoderLayout
       icon="Sui"
-      inputContent={
-        <div className="flex min-h-0 flex-1 flex-col">
-          <div className="flex min-h-0 flex-1 [&_textarea]:min-h-[400px] [&_textarea]:bg-white/80 [&_textarea]:text-sm [&_textarea]:font-mono">
-            <InputText
-              id="raw-transaction-input"
-              multiline
-              value={rawTransaction}
-              onChange={handleTransactionChange}
-              placeholder="Paste your raw SUI transaction data here..."
-              borderClassName="border-green-100"
-            />
-          </div>
-        </div>
-      }
+      inputValue={rawTransaction}
+      onInputChange={handleTransactionChange}
+      inputPlaceholder="Paste your raw SUI transaction data here..."
       transactionHash={transactionHash}
-      outputContent={
-        <div className="flex min-h-0 flex-1 flex-col gap-3">
-          {renderOutputContent()}
-        </div>
-      }
+      outputContent={renderOutputContent()}
     />
   );
 };
