@@ -2,7 +2,6 @@
 
 import { usePathname } from "next/navigation";
 import React, { useState } from "react";
-import { MdContentCopy, MdCheck } from "react-icons/md";
 
 import Icon, { IconName } from "../icon/icon";
 import ToggleGroup, { ToggleGroupItem } from "../toggle-group/toggle-group";
@@ -10,8 +9,6 @@ import { Protocol, protocolDisplayName } from "@app/app/types";
 
 type DecoderLayoutProps = {
   icon: IconName;
-  title: string;
-  description: string;
   inputContent: React.ReactNode;
   outputContent: React.ReactNode;
   outputToolbar?: React.ReactNode;
@@ -78,8 +75,6 @@ const TransactionHashDisplay: React.FC<{ hash: string | null }> = ({ hash }) => 
 
 const DecoderLayout: React.FC<DecoderLayoutProps> = ({
   icon,
-  title,
-  description,
   inputContent,
   outputContent,
   outputToolbar,
@@ -93,10 +88,10 @@ const DecoderLayout: React.FC<DecoderLayoutProps> = ({
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-col items-center justify-center gap-2 text-center md:items-start md:text-left">
             <div className="mb-2 flex flex-shrink-0 items-center justify-center gap-3 md:justify-start">
-              <Icon icon={icon} className="text-4xl" />
-              <h1 className="text-3xl font-bold text-gray-900">{title}</h1>
+              <Icon icon="Figment" className="text-4xl" />
+              <h1 className="text-3xl font-bold text-gray-900">Transaction Decoder</h1>
             </div>
-            <p className="text-gray-600">{description}</p>
+            <p className="text-gray-600">Decode your transaction data into a human-readable format.</p>
           </div>
           <div className="flex items-center justify-center md:justify-end">
             <ToggleGroup
@@ -117,6 +112,7 @@ const DecoderLayout: React.FC<DecoderLayoutProps> = ({
         <div className="flex min-h-0 flex-1 flex-row gap-4">
           <section className="flex min-w-0 flex-1 flex-col gap-2 bg-white/70 rounded-lg px-2 py-2 border border-gray-200 shadow-sm">
             <div className="flex h-8 flex-shrink-0 items-center">
+              <Icon icon={icon} className="text-3xl" />
               <h2 className="text-xl font-bold text-gray-900">Decode Transaction</h2>
             </div>
             <div className="flex min-h-0 flex-1 flex-col">{inputContent}</div>

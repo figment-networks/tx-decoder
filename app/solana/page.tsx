@@ -140,8 +140,6 @@ const SolanaDecoderPageContent = () => {
   return (
     <DecoderLayout
       icon="Solana"
-      title="Solana Transaction Decoder"
-      description="Decode and analyze Solana transactions."
       inputContent={
         <div className="flex min-h-0 flex-1 flex-col">
           <div className="flex min-h-0 flex-1 [&_textarea]:min-h-[400px] [&_textarea]:bg-white/80 [&_textarea]:text-sm [&_textarea]:font-mono">
@@ -150,7 +148,7 @@ const SolanaDecoderPageContent = () => {
               multiline
               value={rawTransaction}
               onChange={handleTransactionChange}
-              placeholder="Paste your raw transaction data here..."
+              placeholder="Paste your raw Solana transaction data here..."
               borderClassName="border-green-100"
             />
           </div>

@@ -7,6 +7,7 @@ import { twMerge as tw } from "tailwind-merge";
 import SolanaIcon from "./icons/solana-icon";
 import CardanoIcon from "./icons/cardano-icon";
 import SuiIcon from "./icons/sui-icon";
+import FigmentIcon from "./icons/figment-icon";
 
 export const icons = Object.freeze({
   Solana: SolanaIcon,
@@ -16,6 +17,7 @@ export const icons = Object.freeze({
   MdKeyboardArrowDown,
   MdCheck,
   MdContentCopy,
+  Figment: FigmentIcon,
 });
 
 export type IconName = keyof typeof icons;
