@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@mysten/sui": "^1.45.2",
+    "@mysten/sui": "1.45.2",
     "@noble/hashes": "1.4.0",
     "@radix-ui/react-toggle-group": "1.1.2",
     "@solana/web3.js": "1.95.0",
