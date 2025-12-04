@@ -2,7 +2,11 @@ import "../styles/globals.css";
 import { Viewport, Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "TX Decoder",
+  title: "Figment Transaction Decoder",
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+  },
 };
 
 export const viewport: Viewport = {

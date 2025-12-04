@@ -12,7 +12,6 @@ import JsonView from "@uiw/react-json-view";
 
 import type { ViewMode } from "../types";
 import DecoderLayout from "../../components/decoder-layout/deconder-layout";
-import InputText from "../../components/input-text/input-text";
 import ToggleGroup from "../../components/toggle-group/toggle-group";
 import SolanaInstructionCard from "./components/solana-instruction-card/solana-instruction-card";
 import { decodeSolanaTransaction } from "../../lib/tx-decoder/solana/decoders";
@@ -140,22 +139,9 @@ const SolanaDecoderPageContent = () => {
   return (
     <DecoderLayout
       icon="Solana"
-      title="Solana Transaction Decoder"
-      description="Decode and analyze Solana transactions."
-      inputContent={
-        <div className="flex min-h-0 flex-1 flex-col">
-          <div className="flex min-h-0 flex-1 [&_textarea]:min-h-[400px] [&_textarea]:bg-white/80 [&_textarea]:text-sm [&_textarea]:font-mono">
-            <InputText
-              id="raw-transaction-input"
-              multiline
-              value={rawTransaction}
-              onChange={handleTransactionChange}
-              placeholder="Paste your raw transaction data here..."
-              borderClassName="border-green-100"
-            />
-          </div>
-        </div>
-      }
+      inputValue={rawTransaction}
+      onInputChange={handleTransactionChange}
+      inputPlaceholder="Paste your raw Solana transaction data here..."
       outputToolbar={
         <ToggleGroup
           value={viewMode}
@@ -167,11 +153,7 @@ const SolanaDecoderPageContent = () => {
         />
       }
       transactionHash={transactionHash}
-      outputContent={
-        <div className="flex min-h-0 flex-1 flex-col gap-3">
-          {renderOutputContent()}
-        </div>
-      }
+      outputContent={renderOutputContent()}
     />
   );
 };

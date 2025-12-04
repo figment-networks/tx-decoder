@@ -2,17 +2,20 @@
 
 import { usePathname } from "next/navigation";
 import React, { useState } from "react";
-import { MdContentCopy, MdCheck } from "react-icons/md";
 
 import Icon, { IconName } from "../icon/icon";
+import InputText from "../input-text/input-text";
 import ToggleGroup, { ToggleGroupItem } from "../toggle-group/toggle-group";
 import { Protocol, protocolDisplayName } from "@app/app/types";
 
 type DecoderLayoutProps = {
   icon: IconName;
-  title: string;
-  description: string;
-  inputContent: React.ReactNode;
+  inputId?: string;
+  inputPlaceholder: string;
+  inputValue: string;
+  onInputChange: React.ChangeEventHandler<
+    HTMLInputElement | HTMLTextAreaElement
+  >;
   outputContent: React.ReactNode;
   outputToolbar?: React.ReactNode;
   transactionHash?: string | null;
@@ -78,9 +81,10 @@ const TransactionHashDisplay: React.FC<{ hash: string | null }> = ({ hash }) => 
 
 const DecoderLayout: React.FC<DecoderLayoutProps> = ({
   icon,
-  title,
-  description,
-  inputContent,
+  inputId,
+  inputPlaceholder,
+  inputValue,
+  onInputChange,
   outputContent,
   outputToolbar,
   transactionHash,
@@ -93,12 +97,19 @@ const DecoderLayout: React.FC<DecoderLayoutProps> = ({
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-col items-center justify-center gap-2 text-center md:items-start md:text-left">
             <div className="mb-2 flex flex-shrink-0 items-center justify-center gap-3 md:justify-start">
-              <Icon icon={icon} className="text-4xl" />
-              <h1 className="text-3xl font-bold text-gray-900">{title}</h1>
+              <Icon icon="Figment" className="text-4xl" />
+              <h1 className="text-3xl font-bold text-gray-900">Transaction Decoder</h1>
             </div>
-            <p className="text-gray-600">{description}</p>
+            <p className="text-gray-600">Decode your transaction data into a human-readable format.</p>
           </div>
-          <div className="flex items-center justify-center md:justify-end">
+          <div className="flex flex-col items-center gap-4 text-center md:flex-row md:items-center lg:text-right justify-center">
+            <button
+              onClick={() => window.open("https://github.com/figment-networks/tx-decoder", "_blank", "noopener,noreferrer")}
+              className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 hover:text-gray-900 hover:border-gray-400 transition-colors lg:justify-end"
+            >
+              <Icon icon="Github" className="text-lg" />
+              View on Github
+            </button>
             <ToggleGroup
               size="md"
               value=""
@@ -114,20 +125,32 @@ const DecoderLayout: React.FC<DecoderLayoutProps> = ({
             />
           </div>
         </div>
-        <div className="flex min-h-0 flex-1 flex-row gap-4">
-          <section className="flex min-w-0 flex-1 flex-col gap-2 bg-white/70 rounded-lg px-2 py-2 border border-gray-200 shadow-sm">
+        <div className="flex min-h-0 flex-1 flex-col gap-4 md:flex-row md:overflow-visible">
+          <section className="flex min-w-0 flex-1 flex-col gap-2 rounded-lg border border-gray-200 bg-white/70 px-2 py-2 shadow-sm overflow-hidden">
             <div className="flex h-8 flex-shrink-0 items-center">
+              <Icon icon={icon} className="text-3xl" />
               <h2 className="text-xl font-bold text-gray-900">Decode Transaction</h2>
             </div>
-            <div className="flex min-h-0 flex-1 flex-col">{inputContent}</div>
+            <div className="flex min-h-0 flex-1 flex-col overflow-auto [&_textarea]:min-h-[400px] [&_textarea]:bg-white/80 [&_textarea]:text-sm [&_textarea]:font-mono">
+              <InputText
+                id={inputId ?? "raw-transaction-input"}
+                multiline
+                value={inputValue}
+                onChange={onInputChange}
+                placeholder={inputPlaceholder}
+                borderClassName="border-green-100"
+              />
+            </div>
           </section>
-          <section className="flex min-w-0 flex-1 flex-col gap-2 bg-white/70 rounded-lg px-2 py-2 border border-gray-200 shadow-sm">
+          <section className="flex min-w-0 flex-1 flex-col gap-2 rounded-lg border border-gray-200 bg-white/70 px-2 py-2 shadow-sm overflow-hidden">
             <div className="flex h-8 flex-shrink-0 items-center justify-between align-middle">
               <h2 className="text-xl font-bold text-gray-900">Output</h2>
               {outputToolbar}
             </div>
             <TransactionHashDisplay hash={transactionHash ?? null} />
-            <div className="cursor-default flex min-w-0 flex-1 flex-col gap-2 bg-white/70 rounded-lg px-2 py-2 border border-gray-200 shadow-sm overflow-auto">{outputContent}</div>
+            <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-auto rounded-lg border border-gray-200 bg-white/70 px-2 py-2 shadow-sm cursor-default">
+              {outputContent}
+            </div>
           </section>
         </div>
       </div>
