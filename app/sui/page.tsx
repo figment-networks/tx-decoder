@@ -105,7 +105,12 @@ const SuiDecoderPageContent = () => {
 
     return (
       <div className="min-h-0 w-full flex-1 overflow-auto bg-white/80 backdrop-blur-sm">
-        <JsonView value={decodedTransaction as object} />
+        <JsonView
+          value={decodedTransaction as object}
+          shortenTextAfterLength={0}
+          displayDataTypes={false}
+          displayObjectSize={false}
+        />
       </div>
     );
   };
