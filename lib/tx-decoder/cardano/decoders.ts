@@ -145,35 +145,105 @@ const convertBytesToHex = (value: number[]): string =>
 const isRecord = (value: CardanoValue): value is Record<string, CardanoValue> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
 
-const formatCardanoValue = (value: CardanoValue): CardanoValue => {
-  if (isByteArray(value)) {
-    return convertBytesToHex(value);
+const removeNullishEntries = <T>(value: T): T => {
+  if (value === null || value === undefined) {
+    return value;
   }
 
   if (Array.isArray(value)) {
-    return value.map((entry) => formatCardanoValue(entry));
+    return value
+      .map((entry) => removeNullishEntries(entry))
+      .filter(
+        (entry): entry is (typeof entry) & CardanoValue =>
+          entry !== null && entry !== undefined
+      ) as unknown as T;
   }
 
-  if (isRecord(value)) {
-    return Object.fromEntries(
-      Object.entries(value).map(([key, entry]) => [key, formatCardanoValue(entry)])
-    );
+  if (typeof value === "object") {
+    const result: Record<string, unknown> = {};
+    for (const [key, entry] of Object.entries(
+      value as Record<string, unknown>
+    )) {
+      const cleaned = removeNullishEntries(entry);
+      if (cleaned !== null && cleaned !== undefined) {
+        result[key] = cleaned;
+      }
+    }
+    return result as T;
   }
 
   return value;
 };
 
+interface TaggedCardanoValue extends Record<string, CardanoValue> {
+  tag: number;
+  value: CardanoValue;
+}
+
+const isTaggedCardanoValue = (
+  value: CardanoValue
+): value is TaggedCardanoValue =>
+  isRecord(value) &&
+  typeof value.tag === "number" &&
+  Object.hasOwn(value, "value");
+
+const unwrapTaggedValue = (value: CardanoValue): CardanoValue => {
+  let current: CardanoValue = value;
+  while (isTaggedCardanoValue(current) && current.tag === 258) {
+    current = current.value;
+  }
+  return current;
+};
+
+const formatCardanoValue = (value: CardanoValue): CardanoValue => {
+  const normalized = unwrapTaggedValue(value);
+
+  if (isByteArray(normalized)) {
+    return convertBytesToHex(normalized);
+  }
+
+  if (Array.isArray(normalized)) {
+    return normalized.map((entry) => formatCardanoValue(entry));
+  }
+
+  if (isRecord(normalized)) {
+    return Object.fromEntries(
+      Object.entries(normalized).map(([key, entry]) => [
+        key,
+        formatCardanoValue(entry),
+      ])
+    );
+  }
+
+  return normalized;
+};
+
+const formatByteLikeToHex = (value: CardanoValue): string | null => {
+  const normalized = unwrapTaggedValue(value);
+  if (typeof normalized === "string") {
+    return normalized;
+  }
+
+  if (isByteArray(normalized)) {
+    return convertBytesToHex(normalized);
+  }
+
+  return null;
+};
+
 const formatCoin = (value: CardanoValue): string | null => {
-  if (typeof value === "number") {
-    return value.toString();
+  const normalized = unwrapTaggedValue(value);
+
+  if (typeof normalized === "number") {
+    return normalized.toString();
   }
 
-  if (typeof value === "string") {
-    return value;
+  if (typeof normalized === "string") {
+    return normalized;
   }
 
-  if (isByteArray(value)) {
-    return convertBytesToHex(value);
+  if (isByteArray(normalized)) {
+    return convertBytesToHex(normalized);
   }
 
   return null;
@@ -183,28 +253,19 @@ const stringifyMapKey = (key: CardanoValue): string => {
   if (typeof key === "string") {
     return key;
   }
-
   if (typeof key === "number") {
     return key.toString(10);
   }
-
   if (typeof key === "boolean") {
     return key ? "true" : "false";
   }
-
   if (key === null) {
     return "null";
   }
-
   if (isByteArray(key)) {
     return convertBytesToHex(key);
   }
-
-  if (Array.isArray(key) || isRecord(key)) {
     return JSON.stringify(formatCardanoValue(key));
-  }
-
-  return String(key);
 };
 
 const encodeBech32Address = (bytes: number[]): string | null => {
@@ -229,154 +290,38 @@ const encodeBech32Address = (bytes: number[]): string | null => {
 };
 
 const formatAddress = (value: CardanoValue): string | null => {
-  if (typeof value === "string") {
-    return value;
+  const normalized = unwrapTaggedValue(value);
+
+  if (typeof normalized === "string") {
+    return normalized;
   }
 
-  if (isByteArray(value)) {
-    return encodeBech32Address(value) ?? convertBytesToHex(value);
+  if (isByteArray(normalized)) {
+    return encodeBech32Address(normalized) ?? convertBytesToHex(normalized);
   }
 
   return null;
 };
 
-const formatAmount = (
-  value: CardanoValue
-): { coin: string | null; multiasset: CardanoValue | null } => {
-  if (typeof value === "number" || typeof value === "string" || isByteArray(value)) {
-    return {
-      coin: formatCoin(value),
-      multiasset: null,
-    };
+const formatPoolId = (hash: string | null): string | null => {
+  if (!hash) {
+    return null;
   }
 
-  if (Array.isArray(value)) {
-    const [coinEntry, multiassetEntry] = value;
-    const coin = formatCoin(coinEntry);
-    if (multiassetEntry === undefined || multiassetEntry === null) {
-      return {
-        coin,
-        multiasset: null,
-      };
-    }
-
-    return {
-      coin,
-      multiasset: formatCardanoValue(multiassetEntry),
-    };
+  try {
+    const bytes = hexToBytes(hash);
+    const words = bech32.toWords(Uint8Array.from(bytes));
+    return bech32.encode("pool", words, 1023);
+  } catch {
+    return null;
   }
-
-  if (isRecord(value)) {
-    const coinEntry = value["0"] ?? value["coin"] ?? null;
-    const multiassetEntry = value["1"] ?? value["multiasset"] ?? null;
-    const coin = coinEntry === null ? null : formatCoin(coinEntry);
-    if (multiassetEntry === null || multiassetEntry === undefined) {
-      return {
-        coin,
-        multiasset: null,
-      };
-    }
-
-    return {
-      coin,
-      multiasset: formatCardanoValue(multiassetEntry),
-    };
-  }
-
-  return {
-    coin: formatCoin(value),
-    multiasset: null,
-  };
 };
 
-const formatOutputFromArray = (entry: CardanoValue[]): CardanoValue => {
-  const [addressEntry, amountEntry, datumEntry, scriptRefEntry] = entry;
-  const plutusData = datumEntry === undefined || datumEntry === null
-    ? null
-    : formatCardanoValue(datumEntry);
-  const scriptRef = scriptRefEntry === undefined || scriptRefEntry === null
-    ? null
-    : formatCardanoValue(scriptRefEntry);
-
-  return {
-    address: formatAddress(addressEntry),
-    amount: formatAmount(amountEntry),
-    plutus_data: plutusData,
-    script_ref: scriptRef,
-  };
-};
-
-const formatOutputFromRecord = (
-  entry: Record<string, CardanoValue>
-): CardanoValue => {
-  const addressEntry = entry["0"] ?? entry["address"] ?? null;
-  const amountEntry = entry["1"] ?? entry["amount"] ?? null;
-  const datumEntry = entry["2"] ?? entry["plutus_data"] ?? null;
-  const scriptRefEntry = entry["3"] ?? entry["script_ref"] ?? null;
-  const paymentCredentialEntry =
-    entry["payment_credential_hash"] ?? entry["4"] ?? null;
-
-  const plutusData = datumEntry === undefined || datumEntry === null
-    ? null
-    : formatCardanoValue(datumEntry);
-  const scriptRef = scriptRefEntry === undefined || scriptRefEntry === null
-    ? null
-    : formatCardanoValue(scriptRefEntry);
-  const amount = amountEntry === null ? null : formatAmount(amountEntry);
-
-  const formatted: Record<string, CardanoValue | null> = {
-    address: formatAddress(addressEntry),
-    amount,
-    plutus_data: plutusData,
-    script_ref: scriptRef,
-  };
-
-  if (paymentCredentialEntry !== null && paymentCredentialEntry !== undefined) {
-    formatted.payment_credential_hash = formatCardanoValue(paymentCredentialEntry);
-  }
-
-  const reservedKeys = new Set([
-    "0",
-    "1",
-    "2",
-    "3",
-    "4",
-    "address",
-    "amount",
-    "plutus_data",
-    "script_ref",
-    "payment_credential_hash",
-  ]);
-
-  for (const [key, value] of Object.entries(entry)) {
-    if (reservedKeys.has(key)) {
-      continue;
-    }
-
-    formatted[key] = formatCardanoValue(value);
-  }
-
-  return formatted;
-};
-
-const formatOutputEntry = (entry: CardanoValue): CardanoValue => {
-  if (Array.isArray(entry)) {
-    return formatOutputFromArray(entry);
-  }
-
-  if (isRecord(entry)) {
-    return formatOutputFromRecord(entry);
-  }
-
-  return formatCardanoValue(entry);
-};
-
-const formatOutputs = (value: CardanoValue): CardanoValue => {
-  if (Array.isArray(value)) {
-    return value.map((entry) => formatOutputEntry(entry));
-  }
-
-  return formatCardanoValue(value);
+const formatAmount = (value: CardanoValue): CardanoValue => {
+  const coin = formatCoin(value);
+  return removeNullishEntries({
+    coin: coin ?? null,
+  });
 };
 
 const parseIndex = (value: CardanoValue): number | null => {
@@ -395,92 +340,241 @@ const parseIndex = (value: CardanoValue): number | null => {
 };
 
 const formatInputs = (value: CardanoValue): CardanoValue => {
-  if (Array.isArray(value)) {
-    return value.map((entry) => {
-      if (Array.isArray(entry) && entry.length >= 2) {
-        const [transactionIdEntry, indexEntry] = entry;
-        let transactionId: string | null = null;
-        if (typeof transactionIdEntry === "string") {
-          transactionId = transactionIdEntry;
-        } else if (isByteArray(transactionIdEntry)) {
-          transactionId = convertBytesToHex(transactionIdEntry);
-        }
-        const index = parseIndex(indexEntry);
+  const normalized = unwrapTaggedValue(value);
+  if (!Array.isArray(normalized)) {
+    return formatCardanoValue(normalized);
+  }
 
+  return normalized
+    .map((entry) => {
+      const normalizedEntry = unwrapTaggedValue(entry);
+      if (!Array.isArray(normalizedEntry) || normalizedEntry.length < 2) {
+        return null;
+      }
+      const [transactionIdEntry, indexEntry] = normalizedEntry;
+      const transactionId = formatByteLikeToHex(transactionIdEntry);
+        const index = parseIndex(indexEntry);
+      if (!transactionId || index === null) {
+        return null;
+      }
         return {
-          transaction_id: typeof transactionId === "string" ? transactionId : null,
+        transaction_id: transactionId,
           index,
         };
+    })
+    .filter(
+      (entry): entry is { transaction_id: string; index: number } =>
+        entry !== null
+    );
+};
+
+const formatOutputs = (value: CardanoValue): CardanoValue => {
+  const normalized = unwrapTaggedValue(value);
+  if (!Array.isArray(normalized)) {
+    return formatCardanoValue(normalized);
+  }
+
+  const outputs: CardanoValue[] = [];
+  for (const entry of normalized) {
+    const normalizedEntry = unwrapTaggedValue(entry);
+    let formatted: CardanoValue | null = null;
+
+    if (Array.isArray(normalizedEntry) && normalizedEntry.length >= 2) {
+      const [addressEntry, amountEntry] = normalizedEntry;
+      formatted = removeNullishEntries({
+        address: formatAddress(addressEntry),
+        amount: formatAmount(amountEntry),
+      });
+    } else if (isRecord(normalizedEntry)) {
+      const addressEntry = normalizedEntry["0"] ?? normalizedEntry["address"];
+      const amountEntry = normalizedEntry["1"] ?? normalizedEntry["amount"];
+      formatted = removeNullishEntries({
+        address: formatAddress(addressEntry ?? null),
+        amount: amountEntry ? formatAmount(amountEntry) : null,
+      });
+    }
+
+    if (formatted) {
+      outputs.push(formatted);
+    }
+  }
+
+  return outputs;
+};
+
+const formatStakeCredential = (
+  value: CardanoValue
+): Record<string, CardanoValue> | null => {
+  const normalized = unwrapTaggedValue(value);
+  if (Array.isArray(normalized) && normalized.length >= 2) {
+    const [type, hashValue] = normalized;
+    if (type === 0) {
+      const hash = formatByteLikeToHex(hashValue);
+      if (hash) {
+        return { Key: hash };
+      }
+    }
+  }
+
+  const formatted = formatCardanoValue(normalized);
+  return isRecord(formatted) ? formatted : null;
+};
+
+const formatStakeDelegationCertificate = (
+  entry: CardanoValue[]
+): CardanoValue | null => {
+  if (entry.length < 3) {
+    return null;
+  }
+
+  const [, credentialEntry, poolEntry] = entry;
+  const stakeCredential = formatStakeCredential(credentialEntry);
+  const poolKeyhash = formatByteLikeToHex(poolEntry);
+  if (!stakeCredential || !poolKeyhash) {
+    return null;
+  }
+
+  const poolId = formatPoolId(poolKeyhash);
+
+  return {
+    StakeDelegation: {
+      stake_credential: stakeCredential,
+      pool_keyhash: poolKeyhash,
+      ...(poolId ? { pool_id: poolId } : {}),
+    },
+  };
+};
+
+const formatVoteDelegationCertificate = (
+  entry: CardanoValue[]
+): CardanoValue | null => {
+  if (entry.length < 3) {
+    return null;
+  }
+
+  const [, credentialEntry, drepEntry] = entry;
+  const stakeCredential = formatStakeCredential(credentialEntry);
+  const drep = unwrapTaggedValue(drepEntry);
+  if (!stakeCredential) {
+    return null;
+  }
+
+  if (Array.isArray(drep) && drep.length > 0) {
+    const [kind] = drep;
+    if (kind === 2 || kind === 3) {
+      return {
+        VoteDelegation: {
+          stake_credential: stakeCredential,
+          drep: kind === 2 ? "AlwaysAbstain" : "AlwaysNoConfidence",
+        },
+      };
+    }
+  }
+
+  const identifier = formatByteLikeToHex(drep);
+  if (!identifier) {
+    return null;
+  }
+
+  return {
+    VoteDelegation: {
+      stake_credential: stakeCredential,
+      drep: identifier,
+    },
+  };
+};
+
+const formatCerts = (value: CardanoValue): CardanoValue => {
+  const normalized = unwrapTaggedValue(value);
+  if (!Array.isArray(normalized)) {
+    return [];
+  }
+
+  return normalized
+    .map((entry) => {
+      const normalizedEntry = unwrapTaggedValue(entry);
+      if (!Array.isArray(normalizedEntry) || normalizedEntry.length === 0) {
+        return null;
       }
 
-      return formatCardanoValue(entry);
-    });
-  }
-
-  return formatCardanoValue(value);
+      const [type] = normalizedEntry;
+      if (type === 2) {
+        return formatStakeDelegationCertificate(normalizedEntry);
+      }
+      if (type === 9) {
+        return formatVoteDelegationCertificate(normalizedEntry);
+      }
+      return null;
+    })
+    .filter((entry): entry is Record<string, CardanoValue> => entry !== null);
 };
 
-const formatFee = (value: CardanoValue): CardanoValue => {
-  const coin = formatCoin(value);
-  if (coin !== null) {
-    return coin;
+const formatRequiredSigners = (value: CardanoValue): CardanoValue => {
+  const normalized = unwrapTaggedValue(value);
+  if (!Array.isArray(normalized)) {
+    return [];
   }
-  return formatCardanoValue(value);
+
+  return normalized
+    .map((entry) => formatByteLikeToHex(entry))
+    .filter((entry): entry is string => typeof entry === "string");
 };
 
-const CARDANO_BODY_FIELD_MAP: Record<string, string> = {
+const formatTTL = (value: CardanoValue): string | null => {
+  const normalized = unwrapTaggedValue(value);
+  if (typeof normalized === "number") {
+    return normalized.toString();
+  }
+  if (typeof normalized === "string") {
+    return normalized;
+  }
+  return null;
+};
+
+const NETWORK_ID_LABELS: Record<number, string> = {
+  0: "Testnet",
+  1: "Mainnet",
+};
+
+const formatNetworkId = (value: CardanoValue): string | null => {
+  const normalized = unwrapTaggedValue(value);
+  if (typeof normalized === "number") {
+    return NETWORK_ID_LABELS[normalized] ?? normalized.toString();
+  }
+  if (typeof normalized === "string") {
+    const parsed = Number.parseInt(normalized, 10);
+    if (!Number.isNaN(parsed) && NETWORK_ID_LABELS[parsed]) {
+      return NETWORK_ID_LABELS[parsed];
+    }
+    return normalized;
+  }
+  return null;
+};
+
+const CARDANO_BODY_FIELD_MAP: Record<string, keyof CardanoTransactionBody> = {
   0: "inputs",
   1: "outputs",
   2: "fee",
   3: "ttl",
   4: "certs",
-  5: "withdrawals",
-  6: "update",
-  7: "auxiliary_data_hash",
-  8: "validity_start_interval",
-  9: "mint",
-  10: "script_data_hash",
-  11: "collateral",
   12: "required_signers",
   13: "network_id",
-  14: "collateral_return",
-  15: "total_collateral",
-  16: "reference_inputs",
-  17: "voting_procedures",
-  18: "voting_proposals",
-  19: "donation",
-  20: "current_treasury_value",
 };
 
-const formatters: Record<string, (value: CardanoValue) => CardanoValue | null> = {
+const formatters: Partial<
+  Record<
+    keyof CardanoTransactionBody,
+    (value: CardanoValue) => CardanoValue | null
+  >
+> = {
   inputs: formatInputs,
   outputs: formatOutputs,
-  fee: formatFee,
+  fee: formatCoin,
+  ttl: formatTTL,
+  certs: formatCerts,
+  required_signers: formatRequiredSigners,
+  network_id: formatNetworkId,
 };
-
-const createDefaultTransactionBody = (): CardanoTransactionBody => ({
-  inputs: null,
-  outputs: null,
-  fee: null,
-  ttl: null,
-  certs: null,
-  withdrawals: null,
-  update: null,
-  auxiliary_data_hash: null,
-  validity_start_interval: null,
-  mint: null,
-  script_data_hash: null,
-  collateral: null,
-  required_signers: null,
-  network_id: null,
-  collateral_return: null,
-  total_collateral: null,
-  reference_inputs: null,
-  voting_procedures: null,
-  voting_proposals: null,
-  donation: null,
-  current_treasury_value: null,
-});
 
 const readFloatFromBytes = (bytes: number[]): number => {
   const buffer = new ArrayBuffer(bytes.length);
@@ -650,17 +744,20 @@ const formatTransactionBody = (
     return null;
   }
 
-  const formatted = createDefaultTransactionBody();
+  const formatted: CardanoTransactionBody = {};
 
   for (const [key, value] of Object.entries(body)) {
-    const fieldName = CARDANO_BODY_FIELD_MAP[key] ?? `field_${key}`;
-    const applyFormatter = formatters[fieldName];
-    formatted[fieldName] = applyFormatter
-      ? applyFormatter(value)
+    const fieldName = CARDANO_BODY_FIELD_MAP[key];
+    if (!fieldName) {
+      continue;
+    }
+    const formatter = formatters[fieldName];
+    formatted[fieldName] = formatter
+      ? formatter(value)
       : formatCardanoValue(value);
   }
 
-  return formatted;
+  return removeNullishEntries(formatted);
 };
 
 const formatTransaction = (
@@ -669,21 +766,26 @@ const formatTransaction = (
   if (Array.isArray(transaction)) {
     const [body, witnesses, isValid, auxiliary] = transaction;
 
-    return {
+    const formatted: CardanoDecodedTransaction = {
       body: formatTransactionBody(body),
       witness_set: witnesses ? formatCardanoValue(witnesses) : null,
       is_valid: typeof isValid === "boolean" ? isValid : true,
-      auxiliary_data: auxiliary ? formatCardanoValue(auxiliary) : null,
     };
+
+    const formattedAuxiliary = auxiliary ? formatCardanoValue(auxiliary) : null;
+    if (formattedAuxiliary !== null) {
+      formatted.auxiliary_data = formattedAuxiliary;
+    }
+
+    return removeNullishEntries(formatted);
   }
 
-  return {
+  return removeNullishEntries({
     body: null,
     witness_set: null,
     is_valid: null,
-    auxiliary_data: null,
     raw: transaction,
-  };
+  });
 };
 
 const deserializeCardanoTransaction = (
@@ -693,18 +795,17 @@ const deserializeCardanoTransaction = (
 
   try {
     const transaction = readCBORValue(state);
-    return formatTransaction(transaction);
+    return removeNullishEntries(formatTransaction(transaction));
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
-    return {
+    return removeNullishEntries({
       body: null,
       witness_set: null,
       is_valid: null,
-      auxiliary_data: null,
       error: "Deserialization failed",
       message,
       raw: serializedHex,
-    };
+    });
   }
 };
 
