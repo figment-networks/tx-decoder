@@ -75,4 +75,5 @@ export interface SuiDecodedTransaction {
   };
   inputs: any[];
   commands: any[];
+  validatorAddresses?: string[];
 }
