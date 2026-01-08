@@ -44,6 +44,7 @@ export interface CardanoTransactionBody {
   fee?: CardanoValue;
   ttl?: CardanoValue;
   certs?: CardanoValue;
+  withdrawals?: CardanoValue;
   required_signers?: CardanoValue;
   network_id?: CardanoValue;
   [key: string]: CardanoValue | undefined;

@@ -408,16 +408,59 @@ const formatStakeCredential = (
   const normalized = unwrapTaggedValue(value);
   if (Array.isArray(normalized) && normalized.length >= 2) {
     const [type, hashValue] = normalized;
-    if (type === 0) {
-      const hash = formatByteLikeToHex(hashValue);
-      if (hash) {
-        return { Key: hash };
+    const hash = formatByteLikeToHex(hashValue);
+    if (hash) {
+      if (type === 0) {
+        return { 
+          kind: "key",
+          keyHash: hash 
+        };
       }
     }
   }
 
   const formatted = formatCardanoValue(normalized);
   return isRecord(formatted) ? formatted : null;
+};
+
+const formatStakeRegistrationCertificate = (
+  entry: CardanoValue[]
+): CardanoValue | null => {
+  if (entry.length < 2) {
+    return null;
+  }
+
+  const [, credentialEntry] = entry;
+  const stakeCredential = formatStakeCredential(credentialEntry);
+  if (!stakeCredential) {
+    return null;
+  }
+
+  return {
+    StakeRegistration: {
+      stake_credential: stakeCredential,
+    },
+  };
+};
+
+const formatStakeDeregistrationCertificate = (
+  entry: CardanoValue[]
+): CardanoValue | null => {
+  if (entry.length < 2) {
+    return null;
+  }
+
+  const [, credentialEntry] = entry;
+  const stakeCredential = formatStakeCredential(credentialEntry);
+  if (!stakeCredential) {
+    return null;
+  }
+
+  return {
+    StakeDeregistration: {
+      stake_credential: stakeCredential,
+    },
+  };
 };
 
 const formatStakeDelegationCertificate = (
@@ -459,29 +502,143 @@ const formatVoteDelegationCertificate = (
     return null;
   }
 
+  // Handle DRep credential types
+  // DRep can be encoded as an array where first element is the kind
   if (Array.isArray(drep) && drep.length > 0) {
-    const [kind] = drep;
-    if (kind === 2 || kind === 3) {
+    const [drepKind] = drep;
+    
+    // drepKind === 0: DRep ID (key hash)
+    if (drepKind === 0) {
+      // Extract the key hash from the array
+      let drepKeyHash: string | null = null;
+      let drepBytes: number[] | null = null;
+      
+      if (drep.length > 1) {
+        const drepValue = drep[1];
+        // Check if it's already a byte array (might include header)
+        if (isByteArray(drepValue)) {
+          drepBytes = drepValue;
+          drepKeyHash = convertBytesToHex(drepValue);
+        } else {
+          // It's a hex string or other format
+          drepKeyHash = formatByteLikeToHex(drepValue);
+        }
+      }
+      
+      if (drepKeyHash) {
+        // Try to encode as bech32 drep1 address
+        try {
+          let bytesToEncode: number[];
+          
+          if (drepBytes) {
+            // If we have the raw bytes, check if header is already present
+            // DRep key hash is 28 bytes, so if we have 29 bytes, header is included
+            if (drepBytes.length === 29 && drepBytes[0] === 0x00) {
+              // Header already present
+              bytesToEncode = drepBytes;
+              // Extract just the key hash (skip header byte)
+              drepKeyHash = convertBytesToHex(drepBytes.slice(1));
+            } else if (drepBytes.length === 28) {
+              // Just the key hash, need to add header
+              bytesToEncode = [0x00, ...drepBytes];
+            } else {
+              // Unexpected length, try with header anyway
+              bytesToEncode = [0x00, ...drepBytes];
+            }
+          } else {
+            // Convert hex to bytes and add header
+            const keyHashBytes = hexToBytes(drepKeyHash);
+            // Prepend header byte: 0x00 for key hash credential type per CIP-0129
+            bytesToEncode = [0x00, ...keyHashBytes];
+          }
+          
+          const words = bech32.toWords(Uint8Array.from(bytesToEncode));
+          const drepBech32 = bech32.encode("drep", words, 1023);
+          return {
+            VoteDelegation: {
+              stake_credential: stakeCredential,
+              drep: {
+                type: "drep_id",
+                keyHash: drepKeyHash,
+                drepId: drepBech32,
+              },
+            },
+          };
+        } catch {
+          // Fallback: use hex format
+          return {
+            VoteDelegation: {
+              stake_credential: stakeCredential,
+              drep: {
+                type: "drep_id",
+                keyHash: drepKeyHash,
+                drepId: `drep1${drepKeyHash}`,
+              },
+            },
+          };
+        }
+      }
+    }
+    // drepKind === 1: Always Abstain
+    else if (drepKind === 1) {
       return {
         VoteDelegation: {
           stake_credential: stakeCredential,
-          drep: kind === 2 ? "AlwaysAbstain" : "AlwaysNoConfidence",
+          drep: {
+            type: "always_abstain",
+            drep: "AlwaysAbstain",
+          },
+        },
+      };
+    }
+    // drepKind === 2: Always No Confidence
+    else if (drepKind === 2) {
+      return {
+        VoteDelegation: {
+          stake_credential: stakeCredential,
+          drep: {
+            type: "always_no_confidence",
+            drep: "AlwaysNoConfidence",
+          },
         },
       };
     }
   }
 
+  // Handle DRep as byte string (key hash directly)
   const identifier = formatByteLikeToHex(drep);
-  if (!identifier) {
-    return null;
+  if (identifier) {
+    try {
+      const keyHashBytes = hexToBytes(identifier);
+      // Prepend header byte: 0x00 for key hash credential type per CIP-0129
+      const drepBytes = [0x00, ...keyHashBytes];
+      const words = bech32.toWords(Uint8Array.from(drepBytes));
+      const drepBech32 = bech32.encode("drep", words, 1023);
+      return {
+        VoteDelegation: {
+          stake_credential: stakeCredential,
+          drep: {
+            type: "drep_id",
+            keyHash: identifier,
+            drepId: drepBech32,
+          },
+        },
+      };
+    } catch {
+      return {
+        VoteDelegation: {
+          stake_credential: stakeCredential,
+          drep: {
+            type: "drep_id",
+            keyHash: identifier,
+            drepId: `drep1${identifier}`,
+          },
+        },
+      };
+    }
   }
 
-  return {
-    VoteDelegation: {
-      stake_credential: stakeCredential,
-      drep: identifier,
-    },
-  };
+  return null;
 };
 
 const formatCerts = (value: CardanoValue): CardanoValue => {
@@ -498,10 +655,20 @@ const formatCerts = (value: CardanoValue): CardanoValue => {
       }
 
       const [type] = normalizedEntry;
+      if (type === 0) {
+        return formatStakeRegistrationCertificate(normalizedEntry);
+      }
+      if (type === 1) {
+        return formatStakeDeregistrationCertificate(normalizedEntry);
+      }
       if (type === 2) {
         return formatStakeDelegationCertificate(normalizedEntry);
       }
       if (type === 9) {
+        return formatVoteDelegationCertificate(normalizedEntry);
+      }
+      // Handle kind 15 for DRep delegation (alternative encoding)
+      if (type === 15) {
         return formatVoteDelegationCertificate(normalizedEntry);
       }
       return null;
@@ -518,6 +685,57 @@ const formatRequiredSigners = (value: CardanoValue): CardanoValue => {
   return normalized
     .map((entry) => formatByteLikeToHex(entry))
     .filter((entry): entry is string => typeof entry === "string");
+};
+
+const formatWithdrawals = (value: CardanoValue): CardanoValue => {
+  const normalized = unwrapTaggedValue(value);
+  if (!isRecord(normalized)) {
+    return null;
+  }
+
+  const withdrawals: Array<{
+    reward_address: string;
+    amount: string;
+    amount_ada?: string;
+  }> = [];
+
+  let totalAmount = BigInt(0);
+
+  for (const [key, amountValue] of Object.entries(normalized)) {
+    // The key might be a hex string (from stringifyMapKey), try to convert to bytes first
+    let rewardAddress: string | null = null;
+    try {
+      // Try parsing as hex string first
+      const bytes = hexToBytes(key);
+      rewardAddress = formatAddress(bytes);
+    } catch {
+      // If not hex, try as direct value (might already be bech32 or other format)
+      rewardAddress = formatAddress(key);
+    }
+    
+    const amount = formatCoin(amountValue);
+    
+    if (rewardAddress && amount) {
+      const amountBigInt = BigInt(amount);
+      totalAmount += amountBigInt;
+      
+      withdrawals.push({
+        reward_address: rewardAddress,
+        amount: amount,
+        amount_ada: (Number(amountBigInt) / 1_000_000).toString(),
+      });
+    }
+  }
+
+  if (withdrawals.length === 0) {
+    return null;
+  }
+
+  return {
+    total_amount: totalAmount.toString(),
+    total_amount_ada: (Number(totalAmount) / 1_000_000).toString(),
+    withdrawals: withdrawals,
+  };
 };
 
 const formatTTL = (value: CardanoValue): string | null => {
@@ -557,6 +775,7 @@ const CARDANO_BODY_FIELD_MAP: Record<string, keyof CardanoTransactionBody> = {
   2: "fee",
   3: "ttl",
   4: "certs",
+  5: "withdrawals",
   12: "required_signers",
   13: "network_id",
 };
@@ -572,6 +791,7 @@ const formatters: Partial<
   fee: formatCoin,
   ttl: formatTTL,
   certs: formatCerts,
+  withdrawals: formatWithdrawals,
   required_signers: formatRequiredSigners,
   network_id: formatNetworkId,
 };
