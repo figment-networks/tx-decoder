@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
 const IndexPage = () => {
-  redirect("/solana");
+  redirect("/ethereum");
 };
 
 export default IndexPage;

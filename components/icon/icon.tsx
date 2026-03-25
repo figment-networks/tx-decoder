@@ -8,12 +8,14 @@ import { twMerge as tw } from "tailwind-merge";
 import SolanaIcon from "./icons/solana-icon";
 import CardanoIcon from "./icons/cardano-icon";
 import SuiIcon from "./icons/sui-icon";
+import EthereumIcon from "./icons/ethereum-icon";
 import FigmentIcon from "./icons/figment-icon";
 
 export const icons = Object.freeze({
   Solana: SolanaIcon,
   Cardano: CardanoIcon,
   Sui: SuiIcon,
+  Ethereum: EthereumIcon,
   MdKeyboardArrowUp,
   MdKeyboardArrowDown,
   MdCheck,

@@ -60,6 +60,33 @@ export interface CardanoDecodedTransaction {
   message?: string;
 }
 
+export interface EthereumDecodedTransaction {
+  type: string;
+  chainId?: string;
+  nonce?: number;
+  to?: string;
+  from?: string;
+  value: {
+    wei: string;
+    eth: string;
+  };
+  gasLimit?: string;
+  maxFeePerGas?: string;
+  maxPriorityFeePerGas?: string;
+  gasPrice?: string;
+  accessList?: readonly {
+    address: string;
+    storageKeys: readonly string[];
+  }[];
+  input?: string;
+  selector?: string;
+  signature?: {
+    v?: string;
+    r?: string;
+    s?: string;
+  };
+}
+
 export interface SuiDecodedTransaction {
   version: number;
   sender: string;
