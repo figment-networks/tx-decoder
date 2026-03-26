@@ -24,7 +24,7 @@ function computeJsonSigningHash(trimmed: string): string {
   let serialized: Hex;
 
   if (maxFeePerGas !== undefined) {
-    serialized = serializeTransaction({ type: "eip1559", chainId, nonce, gas, to, value, data, maxFeePerGas, maxPriorityFeePerGas });
+    serialized = serializeTransaction({ type: "eip1559", chainId: chainId ?? 1, nonce, gas, to, value, data, maxFeePerGas, maxPriorityFeePerGas });
   } else if (gasPrice !== undefined) {
     serialized = serializeTransaction({ type: "legacy", chainId, nonce, gas, to, value, data, gasPrice });
   } else {
