@@ -61,7 +61,7 @@ export interface CardanoDecodedTransaction {
 }
 
 export interface EthereumDecodedTransaction {
-  type: string;
+  type?: string;
   chainId?: string;
   nonce?: number;
   to?: string;

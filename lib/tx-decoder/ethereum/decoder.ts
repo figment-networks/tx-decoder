@@ -22,8 +22,13 @@ const TX_TYPE_LABELS: Record<string, string> = {
 
 function toBigInt(value: string | number | undefined): bigint {
   if (value === undefined || value === null) return 0n;
-  const s = String(value).trim();
-  return BigInt(s.startsWith("0x") || s.startsWith("0X") ? s : s === "" ? "0" : s);
+  const s = String(value).trim().replace(/^["']|["']$/g, "");
+  if (s === "") return 0n;
+  const isHex = s.startsWith("0x") || s.startsWith("0X");
+  if (isHex && !/^0[xX][0-9a-fA-F]+$/.test(s)) {
+    throw new Error(`Invalid hex value: ${s}`);
+  }
+  return BigInt(isHex ? s : s);
 }
 
 function formatValue(wei: bigint): { wei: string; eth: string } {
@@ -38,13 +43,16 @@ function normalizeHex(input: string): Hex {
   return (input.startsWith("0x") ? input : `0x${input}`) as Hex;
 }
 
+function stripUndefined<T extends object>(obj: T): T {
+  return Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined)) as T;
+}
+
 function parseFireblocksEthTx(json: FireblocksEthTx): EthereumDecodedTransaction {
   const valueWei = toBigInt(json.value ?? "0");
   const input = json.data ?? "0x";
   const gasRaw = json.gas ?? json.gasLimit;
 
-  return {
-    type: "fireblocks (unsigned)",
+  return stripUndefined({
     chainId: json.chainId !== undefined ? String(json.chainId) : undefined,
     nonce: json.nonce,
     to: json.to,
@@ -56,7 +64,7 @@ function parseFireblocksEthTx(json: FireblocksEthTx): EthereumDecodedTransaction
       json.maxPriorityFeePerGas !== undefined ? String(json.maxPriorityFeePerGas) : undefined,
     input: input !== "0x" ? input : undefined,
     selector: extractSelector(input),
-  };
+  } as EthereumDecodedTransaction);
 }
 
 async function parseRawEthTx(hexInput: string): Promise<EthereumDecodedTransaction> {
@@ -113,7 +121,14 @@ export async function parseEthereumTx(input: string): Promise<EthereumDecodedTra
   const trimmed = input.trim();
 
   if (trimmed.startsWith("{")) {
-    const json = JSON.parse(trimmed) as FireblocksEthTx;
+    const end = trimmed.lastIndexOf("}");
+    if (end === -1) throw new Error("Invalid JSON: missing closing }");
+    let json: FireblocksEthTx;
+    try {
+      json = JSON.parse(trimmed.slice(0, end + 1)) as FireblocksEthTx;
+    } catch (err) {
+      throw new Error(`Invalid JSON: ${err instanceof Error ? err.message : String(err)}`);
+    }
     return parseFireblocksEthTx(json);
   }
 
