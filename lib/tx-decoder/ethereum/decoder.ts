@@ -35,10 +35,6 @@ function formatValue(wei: bigint): { wei: string; eth: string } {
   return { wei: wei.toString(10), eth: formatEther(wei) };
 }
 
-function extractSelector(input: string): string | undefined {
-  return input.length >= 10 && input !== "0x" ? input.slice(0, 10) : undefined;
-}
-
 function normalizeHex(input: string): Hex {
   return (input.startsWith("0x") ? input : `0x${input}`) as Hex;
 }
@@ -63,7 +59,6 @@ function parseFireblocksEthTx(json: FireblocksEthTx): EthereumDecodedTransaction
     maxPriorityFeePerGas:
       json.maxPriorityFeePerGas !== undefined ? String(json.maxPriorityFeePerGas) : undefined,
     input: input !== "0x" ? input : undefined,
-    selector: extractSelector(input),
   } as EthereumDecodedTransaction);
 }
 
@@ -86,11 +81,10 @@ async function parseRawEthTx(hexInput: string): Promise<EthereumDecodedTransacti
     chainId: tx.chainId !== undefined ? String(tx.chainId) : undefined,
     nonce: tx.nonce,
     to: tx.to ?? undefined,
-    from,
+    ...(from !== undefined && { from }),
     value: formatValue(valueWei),
     gasLimit: tx.gas !== undefined ? tx.gas.toString(10) : undefined,
     input: input !== "0x" ? input : undefined,
-    selector: extractSelector(input),
   };
 
   if (tx.type === "eip1559") {

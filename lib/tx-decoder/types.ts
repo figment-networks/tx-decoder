@@ -79,7 +79,6 @@ export interface EthereumDecodedTransaction {
     storageKeys: readonly string[];
   }[];
   input?: string;
-  selector?: string;
   signature?: {
     v?: string;
     r?: string;
