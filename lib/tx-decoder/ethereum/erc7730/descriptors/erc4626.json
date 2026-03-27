@@ -1,0 +1,46 @@
+{
+  "$schema": "https://eips.ethereum.org/assets/eip-7730/erc7730-v2.schema.json",
+  "context": {
+    "contract": {
+      "deployments": []
+    }
+  },
+  "metadata": {
+    "owner": "ERC-4626 Standard",
+    "contractName": "Tokenized Vault"
+  },
+  "display": {
+    "formats": {
+      "deposit(uint256,address)": {
+        "intent": "Deposit into Vault",
+        "fields": [
+          { "path": "assets", "label": "Assets", "format": "tokenAmount" },
+          { "path": "receiver", "label": "Receiver", "format": "addressName" }
+        ]
+      },
+      "withdraw(uint256,address,address)": {
+        "intent": "Withdraw from Vault",
+        "fields": [
+          { "path": "assets", "label": "Assets", "format": "tokenAmount" },
+          { "path": "receiver", "label": "Receiver", "format": "addressName" },
+          { "path": "owner", "label": "Owner", "format": "addressName" }
+        ]
+      },
+      "mint(uint256,address)": {
+        "intent": "Mint Vault Shares",
+        "fields": [
+          { "path": "shares", "label": "Shares", "format": "tokenAmount" },
+          { "path": "receiver", "label": "Receiver", "format": "addressName" }
+        ]
+      },
+      "redeem(uint256,address,address)": {
+        "intent": "Redeem Vault Shares",
+        "fields": [
+          { "path": "shares", "label": "Shares", "format": "tokenAmount" },
+          { "path": "receiver", "label": "Receiver", "format": "addressName" },
+          { "path": "owner", "label": "Owner", "format": "addressName" }
+        ]
+      }
+    }
+  }
+}

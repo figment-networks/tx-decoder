@@ -1,0 +1,27 @@
+{
+  "$schema": "https://eips.ethereum.org/assets/eip-7730/erc7730-v2.schema.json",
+  "context": {
+    "contract": {
+      "deployments": []
+    }
+  },
+  "metadata": {
+    "owner": "WETH",
+    "contractName": "Wrapped Ether",
+    "decimals": 18
+  },
+  "display": {
+    "formats": {
+      "deposit()": {
+        "intent": "Wrap ETH",
+        "fields": []
+      },
+      "withdraw(uint256)": {
+        "intent": "Unwrap WETH",
+        "fields": [
+          { "path": "wad", "label": "Amount", "format": "tokenAmount" }
+        ]
+      }
+    }
+  }
+}

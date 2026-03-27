@@ -10,9 +10,13 @@ import {
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import JsonView from "@uiw/react-json-view";
 import DecoderLayout from "../../components/decoder-layout/deconder-layout";
+import ToggleGroup from "../../components/toggle-group/toggle-group";
 import { parseEthereumTx } from "../../lib/tx-decoder/ethereum/decoder";
 import computeEthereumHash from "../../lib/tx-decoder/ethereum/compute-hash";
+import { decodeCalldata } from "../../lib/tx-decoder/ethereum/erc7730/decode-calldata";
+import EthereumTransactionCard from "./components/ethereum-transaction-card/ethereum-transaction-card";
 import type { EthereumDecodedTransaction } from "../../lib/tx-decoder/types";
+import type { ViewMode } from "../types";
 
 const PLACEHOLDER = `Paste raw hex (RLP-encoded EIP-1559 / legacy) or Fireblocks JSON:
 
@@ -36,6 +40,7 @@ const EthereumDecoderPageContent = () => {
     useState<EthereumDecodedTransaction | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [transactionHash, setTransactionHash] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>("summary");
 
   const updateUrl = useCallback(
     (value: string) => {
@@ -105,18 +110,39 @@ const EthereumDecoderPageContent = () => {
       return <span className="text-red-600">Error: {error}</span>;
     }
 
-    if (!decodedTransaction) {
+    const placeholder = (
+      <span className="text-sm text-gray-400">
+        Decoded transaction will appear here...
+      </span>
+    );
+
+    if (viewMode === "summary") {
+      if (!decodedTransaction) return placeholder;
+      const erc7730Result = decodeCalldata(decodedTransaction.input ?? "0x");
       return (
-        <span className="text-sm text-gray-400">
-          Decoded transaction will appear here...
-        </span>
+        <div className="min-h-0 w-full flex-1 overflow-auto">
+          <div className="flex flex-col gap-2">
+            <EthereumTransactionCard
+              decoded={decodedTransaction}
+              erc7730Result={erc7730Result}
+            />
+          </div>
+        </div>
       );
     }
+
+    if (!decodedTransaction) return placeholder;
+
+    const erc7730Result = decodeCalldata(decodedTransaction.input ?? "0x");
+    const { rawCalldata: _, ...erc7730Display } =
+      erc7730Result.kind === "unknown"
+        ? erc7730Result
+        : { ...erc7730Result, rawCalldata: undefined };
 
     return (
       <div className="min-h-0 w-full flex-1 overflow-auto bg-white/80 backdrop-blur-sm">
         <JsonView
-          value={decodedTransaction as object}
+          value={{ transaction: decodedTransaction, erc7730: erc7730Display } as object}
           shortenTextAfterLength={0}
           displayDataTypes={false}
           displayObjectSize={false}
@@ -132,6 +158,16 @@ const EthereumDecoderPageContent = () => {
       onInputChange={handleTransactionChange}
       inputPlaceholder={PLACEHOLDER}
       transactionHash={transactionHash}
+      outputToolbar={
+        <ToggleGroup
+          value={viewMode}
+          onValueChange={(value) => setViewMode(value as ViewMode)}
+          items={[
+            { content: "Summary", value: "summary" },
+            { content: "JSON", value: "json" },
+          ]}
+        />
+      }
       outputContent={renderOutputContent()}
     />
   );

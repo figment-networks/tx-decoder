@@ -1,0 +1,38 @@
+{
+  "$schema": "https://eips.ethereum.org/assets/eip-7730/erc7730-v2.schema.json",
+  "context": {
+    "contract": {
+      "deployments": []
+    }
+  },
+  "metadata": {
+    "owner": "ERC-20 Standard",
+    "contractName": "ERC-20 Token"
+  },
+  "display": {
+    "formats": {
+      "transfer(address,uint256)": {
+        "intent": "Send Tokens",
+        "fields": [
+          { "path": "to", "label": "Recipient", "format": "addressName" },
+          { "path": "value", "label": "Amount", "format": "tokenAmount" }
+        ]
+      },
+      "approve(address,uint256)": {
+        "intent": "Approve Spending",
+        "fields": [
+          { "path": "spender", "label": "Spender", "format": "addressName" },
+          { "path": "value", "label": "Allowance", "format": "tokenAmount" }
+        ]
+      },
+      "transferFrom(address,address,uint256)": {
+        "intent": "Transfer Tokens From",
+        "fields": [
+          { "path": "from", "label": "From", "format": "addressName" },
+          { "path": "to", "label": "Recipient", "format": "addressName" },
+          { "path": "value", "label": "Amount", "format": "tokenAmount" }
+        ]
+      }
+    }
+  }
+}

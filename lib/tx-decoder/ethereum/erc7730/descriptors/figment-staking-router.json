@@ -1,0 +1,28 @@
+{
+  "$schema": "https://eips.ethereum.org/assets/eip-7730/erc7730-v2.schema.json",
+  "context": {
+    "contract": {
+      "deployments": [
+        { "chainId": 560048, "address": "0x7ac74cb69104cea773cc3154d47c930ca6462fe8" }
+      ]
+    }
+  },
+  "metadata": {
+    "owner": "Figment",
+    "contractName": "Figment Staking Router"
+  },
+  "display": {
+    "formats": {
+      "deposit(bytes[] pubkeys,bytes[] withdrawalCredentials,bytes[] signatures,bytes32[] depositDataRoots,uint256[] amounts)": {
+        "intent": "Stake ETH",
+        "fields": [
+          { "path": "pubkeys", "label": "Validator Pubkeys", "format": "raw" },
+          { "path": "withdrawalCredentials", "label": "Withdrawal Credentials", "format": "raw" },
+          { "path": "signatures", "label": "BLS Signatures", "format": "raw" },
+          { "path": "depositDataRoots", "label": "Deposit Data Roots", "format": "raw" },
+          { "path": "amounts", "label": "Amount per Validator (Gwei)", "format": "raw" }
+        ]
+      }
+    }
+  }
+}
