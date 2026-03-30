@@ -13,6 +13,7 @@
     "formats": {
       "transfer(address,uint256)": {
         "intent": "Send Tokens",
+        "interpolatedIntent": "You are sending {value} to {to}.",
         "fields": [
           { "path": "to", "label": "Recipient", "format": "addressName" },
           { "path": "value", "label": "Amount", "format": "tokenAmount" }
@@ -20,6 +21,7 @@
       },
       "approve(address,uint256)": {
         "intent": "Approve Spending",
+        "interpolatedIntent": "You are approving {spender} to spend {value}.",
         "fields": [
           { "path": "spender", "label": "Spender", "format": "addressName" },
           { "path": "value", "label": "Allowance", "format": "tokenAmount" }
@@ -27,6 +29,7 @@
       },
       "transferFrom(address,address,uint256)": {
         "intent": "Transfer Tokens From",
+        "interpolatedIntent": "You are transferring {value} from {from} to {to}.",
         "fields": [
           { "path": "from", "label": "From", "format": "addressName" },
           { "path": "to", "label": "Recipient", "format": "addressName" },

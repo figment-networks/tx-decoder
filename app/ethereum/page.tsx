@@ -116,9 +116,11 @@ const EthereumDecoderPageContent = () => {
       </span>
     );
 
+    if (!decodedTransaction) return placeholder;
+
+    const erc7730Result = decodeCalldata(decodedTransaction.input ?? "0x");
+
     if (viewMode === "summary") {
-      if (!decodedTransaction) return placeholder;
-      const erc7730Result = decodeCalldata(decodedTransaction.input ?? "0x");
       return (
         <div className="min-h-0 w-full flex-1 overflow-auto">
           <div className="flex flex-col gap-2">
@@ -131,9 +133,6 @@ const EthereumDecoderPageContent = () => {
       );
     }
 
-    if (!decodedTransaction) return placeholder;
-
-    const erc7730Result = decodeCalldata(decodedTransaction.input ?? "0x");
     const { rawCalldata: _, ...erc7730Display } =
       erc7730Result.kind === "unknown"
         ? erc7730Result
@@ -142,7 +141,7 @@ const EthereumDecoderPageContent = () => {
     return (
       <div className="min-h-0 w-full flex-1 overflow-auto bg-white/80 backdrop-blur-sm">
         <JsonView
-          value={{ transaction: decodedTransaction, erc7730: erc7730Display } as object}
+          value={erc7730Display as object}
           shortenTextAfterLength={0}
           displayDataTypes={false}
           displayObjectSize={false}

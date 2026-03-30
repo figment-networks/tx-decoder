@@ -20,7 +20,7 @@
           { "path": "withdrawalCredentials", "label": "Withdrawal Credentials", "format": "raw" },
           { "path": "signatures", "label": "BLS Signatures", "format": "raw" },
           { "path": "depositDataRoots", "label": "Deposit Data Roots", "format": "raw" },
-          { "path": "amounts", "label": "Amount per Validator (Gwei)", "format": "raw" }
+          { "path": "amounts", "label": "Amount per Validator", "format": "unit", "params": { "base": "ETH", "decimals": 9 } }
         ]
       }
     }
