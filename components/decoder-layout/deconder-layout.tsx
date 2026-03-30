@@ -28,6 +28,10 @@ type ProtocolOption = {
 
 const protocolOptions: readonly ProtocolOption[] = [
   {
+    href: `/${Protocol.ETHEREUM.toLowerCase()}`,
+    protocol: protocolDisplayName[Protocol.ETHEREUM],
+  },
+  {
     href: `/${Protocol.SOLANA.toLowerCase()}`,
     protocol: protocolDisplayName[Protocol.SOLANA],
   },
