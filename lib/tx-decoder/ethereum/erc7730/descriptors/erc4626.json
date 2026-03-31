@@ -1,0 +1,50 @@
+{
+  "$schema": "https://eips.ethereum.org/assets/eip-7730/erc7730-v2.schema.json",
+  "context": {
+    "contract": {
+      "deployments": []
+    }
+  },
+  "metadata": {
+    "owner": "ERC-4626 Standard",
+    "contractName": "Tokenized Vault"
+  },
+  "display": {
+    "formats": {
+      "deposit(uint256,address)": {
+        "intent": "Deposit into Vault",
+        "interpolatedIntent": "You are depositing {assets} into the vault for {receiver}.",
+        "fields": [
+          { "path": "assets", "label": "Assets", "format": "tokenAmount" },
+          { "path": "receiver", "label": "Receiver", "format": "addressName" }
+        ]
+      },
+      "withdraw(uint256,address,address)": {
+        "intent": "Withdraw from Vault",
+        "interpolatedIntent": "You are withdrawing {assets} from the vault to {receiver}.",
+        "fields": [
+          { "path": "assets", "label": "Assets", "format": "tokenAmount" },
+          { "path": "receiver", "label": "Receiver", "format": "addressName" },
+          { "path": "owner", "label": "Owner", "format": "addressName" }
+        ]
+      },
+      "mint(uint256,address)": {
+        "intent": "Mint Vault Shares",
+        "interpolatedIntent": "You are minting {shares} vault shares to {receiver}.",
+        "fields": [
+          { "path": "shares", "label": "Shares", "format": "tokenAmount" },
+          { "path": "receiver", "label": "Receiver", "format": "addressName" }
+        ]
+      },
+      "redeem(uint256,address,address)": {
+        "intent": "Redeem Vault Shares",
+        "interpolatedIntent": "You are redeeming {shares} vault shares to {receiver}.",
+        "fields": [
+          { "path": "shares", "label": "Shares", "format": "tokenAmount" },
+          { "path": "receiver", "label": "Receiver", "format": "addressName" },
+          { "path": "owner", "label": "Owner", "format": "addressName" }
+        ]
+      }
+    }
+  }
+}

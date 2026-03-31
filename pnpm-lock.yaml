@@ -26,6 +26,9 @@ importers:
       bech32:
         specifier: 2.0.0
         version: 2.0.0
+      bignumber.js:
+        specifier: 10.0.2
+        version: 10.0.2
       bs58:
         specifier: 5.0.0
         version: 5.0.0
@@ -1182,6 +1185,9 @@ packages:
 
   bech32@2.0.0:
     resolution: {integrity: sha512-LcknSilhIGatDAsY1ak2I8VtGaHNhgMSYVxFrGLXv+xLHytaKZKcaUJJUE7qmBr7h33o5YQwP55pMI0xmkpJwg==}
+
+  bignumber.js@10.0.2:
+    resolution: {integrity: sha512-E8Wp9O06QA6lneJ4aRUXKYf/1GIomqUEmUMwtIOMtDxf1U52ffJY+y7JBk/8wRafA8qOIqLnXQGqonYXZdBnFQ==}
 
   binary-extensions@2.3.0:
     resolution: {integrity: sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==}
@@ -4106,6 +4112,8 @@ snapshots:
   baseline-browser-mapping@2.9.0: {}
 
   bech32@2.0.0: {}
+
+  bignumber.js@10.0.2: {}
 
   binary-extensions@2.3.0: {}
 
