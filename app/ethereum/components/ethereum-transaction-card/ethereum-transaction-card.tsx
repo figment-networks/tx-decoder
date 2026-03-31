@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { KeyboardEvent } from "react";
 import { formatGwei } from "viem";
+import BigNumber from "bignumber.js";
 import Icon from "../../../../components/icon/icon";
 import type { EthereumDecodedTransaction } from "../../../../lib/tx-decoder/types";
 import type {
@@ -62,7 +63,7 @@ const EthereumTransactionCard = ({
   };
 
   const description = resolveDescription(erc7730Result);
-  const showEthValue = decoded.value.eth !== "0" && decoded.value.eth !== "0.0";
+  const showEthValue = new BigNumber(decoded.value.wei).isGreaterThan(0);
   const networkName = decoded.chainId ? CHAIN_NAMES[decoded.chainId] : undefined;
 
   const action =

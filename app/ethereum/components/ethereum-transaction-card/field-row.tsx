@@ -1,6 +1,7 @@
 "use client";
 
 import { formatEther } from "viem";
+import BigNumber from "bignumber.js";
 import type {
   Erc7730MatchResult,
   DecodedField,
@@ -95,8 +96,8 @@ export function formatFieldValue(
 
       if (result.token) {
         const { ticker, decimals } = result.token;
-        const amount = Number(bigVal) / Math.pow(10, decimals);
-        return `${amount.toLocaleString(undefined, { maximumFractionDigits: 6 })} ${ticker}`;
+        const amount = new BigNumber(rawValue).shiftedBy(-decimals);
+        return `${amount.toFormat(6)} ${ticker}`;
       }
 
       if (result.decimals === 18) {
