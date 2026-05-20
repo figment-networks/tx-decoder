@@ -146,9 +146,9 @@ export function formatFieldValue(
         const n = Number(BigInt(rawValue)) / Math.pow(10, decimals);
         if (usePrefix) {
           const hit = SI_PREFIXES.find(({ factor }) => n >= factor);
-          return hit ? `${n / hit.factor}${hit.symbol}${base}` : `${n}${base}`;
+          return hit ? `${n / hit.factor}${hit.symbol}${base}` : `${n} ${base}`;
         }
-        return `${n}${base}`;
+        return `${n} ${base}`;
       } catch {
         return rawValue;
       }
