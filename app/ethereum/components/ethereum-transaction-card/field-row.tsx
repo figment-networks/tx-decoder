@@ -175,9 +175,11 @@ export function formatFieldValue(
 const FieldRow = ({
   field,
   result,
+  chainId,
 }: {
   field: DecodedField;
   result: Erc7730MatchResult;
+  chainId?: string;
 }) => {
   if (!shouldShowField(field)) return null;
 
@@ -186,7 +188,7 @@ const FieldRow = ({
   return (
     <Row label={field.label}>
       {isAddr ? (
-        <AddressLink address={field.decoded.value} />
+        <AddressLink address={field.decoded.value} chainId={chainId} />
       ) : (
         formatFieldValue(field, result)
       )}
