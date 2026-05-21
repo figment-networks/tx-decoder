@@ -23,6 +23,7 @@ export interface Erc7730RawField {
 export interface Erc7730RawLayout {
   intent: string;
   zeroAmountIntent?: string;
+  equalBytesIntent?: string;
   fields: Erc7730RawField[];
 }
 

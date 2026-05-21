@@ -1,0 +1,26 @@
+{
+  "$schema": "https://eips.ethereum.org/assets/eip-7730/erc7730-v2.schema.json",
+  "context": {
+    "contract": {
+      "deployments": [
+        { "chainId": 1, "address": "0x0000bbddc7ce488642fb579f8b00f3a590007251" },
+        { "chainId": 560048, "address": "0x0000bbddc7ce488642fb579f8b00f3a590007251" }
+      ]
+    }
+  },
+  "metadata": {
+    "owner": "Ethereum Foundation",
+    "contractName": "Consolidation Request Contract"
+  },
+  "display": {
+    "formats": {},
+    "rawLayout": {
+      "intent": "Consolidate Validators",
+      "equalBytesIntent": "Upgrade Validator",
+      "fields": [
+        { "byteOffset": 0, "byteLength": 48, "label": "Source Validator Public Key", "format": "raw" },
+        { "byteOffset": 48, "byteLength": 48, "label": "Target Validator Public Key", "format": "raw" }
+      ]
+    }
+  }
+}
