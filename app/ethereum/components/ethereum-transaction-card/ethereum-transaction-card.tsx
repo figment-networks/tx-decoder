@@ -119,20 +119,25 @@ const EthereumTransactionCard = ({
                 <span className="text-xs">{erc7730Result.functionSignature}</span>
               </Row>
             )}
+            {erc7730Result.kind === "matched" && decoded.to && (
+              <Row label="Contract">
+                <AddressLink address={decoded.to} chainId={decoded.chainId} />
+              </Row>
+            )}
 
             {erc7730Result.kind === "matched" &&
               erc7730Result.fields.map((field, i) => (
-                <FieldRow key={field.path ?? i} field={field} result={erc7730Result} />
+                <FieldRow key={field.path ?? i} field={field} result={erc7730Result} chainId={decoded.chainId} />
               ))}
 
             {decoded.from && (
               <Row label="From">
-                <AddressLink address={decoded.from} />
+                <AddressLink address={decoded.from} chainId={decoded.chainId} />
               </Row>
             )}
             {decoded.to && erc7730Result.kind !== "matched" && (
               <Row label="To">
-                <AddressLink address={decoded.to} />
+                <AddressLink address={decoded.to} chainId={decoded.chainId} />
               </Row>
             )}
 

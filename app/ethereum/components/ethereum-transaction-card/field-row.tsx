@@ -146,9 +146,9 @@ export function formatFieldValue(
         const n = Number(BigInt(rawValue)) / Math.pow(10, decimals);
         if (usePrefix) {
           const hit = SI_PREFIXES.find(({ factor }) => n >= factor);
-          return hit ? `${n / hit.factor}${hit.symbol}${base}` : `${n}${base}`;
+          return hit ? `${n / hit.factor}${hit.symbol}${base}` : `${n} ${base}`;
         }
-        return `${n}${base}`;
+        return `${n} ${base}`;
       } catch {
         return rawValue;
       }
@@ -175,9 +175,11 @@ export function formatFieldValue(
 const FieldRow = ({
   field,
   result,
+  chainId,
 }: {
   field: DecodedField;
   result: Erc7730MatchResult;
+  chainId?: string;
 }) => {
   if (!shouldShowField(field)) return null;
 
@@ -186,7 +188,7 @@ const FieldRow = ({
   return (
     <Row label={field.label}>
       {isAddr ? (
-        <AddressLink address={field.decoded.value} />
+        <AddressLink address={field.decoded.value} chainId={chainId} />
       ) : (
         formatFieldValue(field, result)
       )}

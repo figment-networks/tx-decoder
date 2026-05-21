@@ -3,7 +3,22 @@
   "context": {
     "contract": {
       "deployments": [
-        { "chainId": 560048, "address": "0x7ac74cb69104cea773cc3154d47c930ca6462fe8" }
+        {
+          "chainId": 1,
+          "address": "0xf0075b3cf8953d3e23b0ef65960913fd97eb5227"
+        },
+        {
+          "chainId": 1,
+          "address": "0x8b0d88b8be3c15d746feb0b1f18c883c03b6aa62"
+        },
+        {
+          "chainId": 560048,
+          "address": "0xd00e86078c7e8b814a4b061fa14327e3427ff00a"
+        },
+        {
+          "chainId": 560048,
+          "address": "0x7ac74cb69104cea773cc3154d47c930ca6462fe8"
+        }
       ]
     }
   },
@@ -13,14 +28,44 @@
   },
   "display": {
     "formats": {
+      "deposit(bytes[] pubkeys,bytes[] withdrawalCredentials,bytes[] signatures,bytes32[] depositDataRoots)": {
+        "intent": "Stake ETH",
+        "fields": [
+          { "path": "pubkeys", "label": "Validator Pubkeys", "format": "raw" },
+          {
+            "path": "withdrawalCredentials",
+            "label": "Withdrawal Credentials",
+            "format": "raw"
+          },
+          { "path": "signatures", "label": "BLS Signatures", "format": "raw" },
+          {
+            "path": "depositDataRoots",
+            "label": "Deposit Data Roots",
+            "format": "raw"
+          }
+        ]
+      },
       "deposit(bytes[] pubkeys,bytes[] withdrawalCredentials,bytes[] signatures,bytes32[] depositDataRoots,uint256[] amounts)": {
         "intent": "Stake ETH",
         "fields": [
           { "path": "pubkeys", "label": "Validator Pubkeys", "format": "raw" },
-          { "path": "withdrawalCredentials", "label": "Withdrawal Credentials", "format": "raw" },
+          {
+            "path": "withdrawalCredentials",
+            "label": "Withdrawal Credentials",
+            "format": "raw"
+          },
           { "path": "signatures", "label": "BLS Signatures", "format": "raw" },
-          { "path": "depositDataRoots", "label": "Deposit Data Roots", "format": "raw" },
-          { "path": "amounts", "label": "Amount per Validator", "format": "unit", "params": { "base": "ETH", "decimals": 9 } }
+          {
+            "path": "depositDataRoots",
+            "label": "Deposit Data Roots",
+            "format": "raw"
+          },
+          {
+            "path": "amounts",
+            "label": "Amount per Validator",
+            "format": "unit",
+            "params": { "base": "ETH", "decimals": 9 }
+          }
         ]
       }
     }
