@@ -16,12 +16,14 @@ import erc20Descriptor from "./descriptors/erc20.json";
 import erc4626Descriptor from "./descriptors/erc4626.json";
 import figmentDescriptor from "./descriptors/figment-staking-router.json";
 import withdrawalRequestDescriptor from "./descriptors/withdrawal-request-contract.json";
+import consolidationRequestDescriptor from "./descriptors/consolidation-request-contract.json";
 
 const ALL_DESCRIPTORS: Erc7730Descriptor[] = [
   erc20Descriptor as Erc7730Descriptor,
   erc4626Descriptor as Erc7730Descriptor,
   figmentDescriptor as Erc7730Descriptor,
   withdrawalRequestDescriptor as Erc7730Descriptor,
+  consolidationRequestDescriptor as Erc7730Descriptor,
 ];
 
 function normalizeIntent(intent: string | Record<string, string>): string {
@@ -94,10 +96,15 @@ function decodeRawLayout(calldata: string, entry: RawLayoutEntry): Erc7730Decode
 
   const amountField = fields.find((f) => f.format === "unit" || f.format === "amount");
   const isFullExit = amountField?.decoded.value === "0";
+
+  const rawFields = fields.filter((f) => f.decoded.kind === "raw");
+  const isEqualBytes =
+    rawFields.length >= 2 && rawFields[0].decoded.value === rawFields[1].decoded.value;
+
   const intent =
-    isFullExit && entry.rawLayout.zeroAmountIntent
-      ? entry.rawLayout.zeroAmountIntent
-      : entry.rawLayout.intent;
+    (isFullExit && entry.rawLayout.zeroAmountIntent) ? entry.rawLayout.zeroAmountIntent
+    : (isEqualBytes && entry.rawLayout.equalBytesIntent) ? entry.rawLayout.equalBytesIntent
+    : entry.rawLayout.intent;
 
   return {
     kind: "matched",
