@@ -118,7 +118,7 @@ const EthereumDecoderPageContent = () => {
 
     if (!decodedTransaction) return placeholder;
 
-    const erc7730Result = decodeCalldata(decodedTransaction.input ?? "0x");
+    const erc7730Result = decodeCalldata(decodedTransaction.input ?? "0x", decodedTransaction.to);
 
     if (viewMode === "summary") {
       return (

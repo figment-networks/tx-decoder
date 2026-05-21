@@ -114,7 +114,7 @@ const EthereumTransactionCard = ({
             {networkName && <Row label="Network">{networkName}</Row>}
             {decoded.chainId && <Row label="Chain ID">{decoded.chainId}</Row>}
 
-            {erc7730Result.kind === "matched" && (
+            {erc7730Result.kind === "matched" && erc7730Result.functionSignature && (
               <Row label="Function">
                 <span className="text-xs">{erc7730Result.functionSignature}</span>
               </Row>

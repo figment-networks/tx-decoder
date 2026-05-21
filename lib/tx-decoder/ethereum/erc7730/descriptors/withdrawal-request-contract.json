@@ -1,0 +1,26 @@
+{
+  "$schema": "https://eips.ethereum.org/assets/eip-7730/erc7730-v2.schema.json",
+  "context": {
+    "contract": {
+      "deployments": [
+        { "chainId": 1, "address": "0x00000961ef480eb55e80d19ad83579a64c007002" },
+        { "chainId": 560048, "address": "0x00000961ef480eb55e80d19ad83579a64c007002" }
+      ]
+    }
+  },
+  "metadata": {
+    "owner": "Ethereum Foundation",
+    "contractName": "Withdrawal Request Contract"
+  },
+  "display": {
+    "formats": {},
+    "rawLayout": {
+      "intent": "Request Partial Withdrawal",
+      "zeroAmountIntent": "Request Full Exit",
+      "fields": [
+        { "byteOffset": 0, "byteLength": 48, "label": "Validator Public Key", "format": "raw" },
+        { "byteOffset": 48, "byteLength": 8, "label": "Amount", "format": "unit", "params": { "base": "ETH", "decimals": 9 } }
+      ]
+    }
+  }
+}

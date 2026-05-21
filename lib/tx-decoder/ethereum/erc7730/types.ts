@@ -12,6 +12,20 @@ export interface Erc7730FunctionFormat {
   fields: Erc7730Field[];
 }
 
+export interface Erc7730RawField {
+  byteOffset: number;
+  byteLength: number;
+  label: string;
+  format: string;
+  params?: Record<string, unknown>;
+}
+
+export interface Erc7730RawLayout {
+  intent: string;
+  zeroAmountIntent?: string;
+  fields: Erc7730RawField[];
+}
+
 export interface Erc7730Descriptor {
   metadata: {
     owner: string;
@@ -24,6 +38,7 @@ export interface Erc7730Descriptor {
   display: {
     formats: Record<string, Erc7730FunctionFormat>;
     definitions?: Record<string, Erc7730Field>;
+    rawLayout?: Erc7730RawLayout;
   };
 }
 
@@ -46,7 +61,7 @@ export interface Erc7730MatchResult {
   intent: string;
   interpolatedIntent?: string;
   contractName: string;
-  functionSignature: string;
+  functionSignature?: string;
   selector: string;
   fields: DecodedField[];
   decimals?: number;

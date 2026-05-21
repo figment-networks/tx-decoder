@@ -15,11 +15,13 @@ import type {
 import erc20Descriptor from "./descriptors/erc20.json";
 import erc4626Descriptor from "./descriptors/erc4626.json";
 import figmentDescriptor from "./descriptors/figment-staking-router.json";
+import withdrawalRequestDescriptor from "./descriptors/withdrawal-request-contract.json";
 
 const ALL_DESCRIPTORS: Erc7730Descriptor[] = [
   erc20Descriptor as Erc7730Descriptor,
   erc4626Descriptor as Erc7730Descriptor,
   figmentDescriptor as Erc7730Descriptor,
+  withdrawalRequestDescriptor as Erc7730Descriptor,
 ];
 
 function normalizeIntent(intent: string | Record<string, string>): string {
@@ -38,12 +40,24 @@ type SelectorEntry = {
 
 const selectorMap = new Map<string, SelectorEntry>();
 
+type RawLayoutEntry = {
+  descriptor: Erc7730Descriptor;
+  rawLayout: NonNullable<Erc7730Descriptor["display"]["rawLayout"]>;
+};
+const addressMap = new Map<string, RawLayoutEntry>();
+
 for (const descriptor of ALL_DESCRIPTORS) {
   for (const [signature, format] of Object.entries(descriptor.display.formats)) {
     const selector = toFunctionSelector(`function ${signature}`);
     if (!selectorMap.has(selector)) {
       const { inputs } = parseAbiItem(`function ${signature}`) as AbiFunction;
       selectorMap.set(selector, { descriptor, signature, format, inputs });
+    }
+  }
+  if (descriptor.display.rawLayout) {
+    const rawLayout = descriptor.display.rawLayout;
+    for (const { address } of (descriptor as unknown as { context: { contract: { deployments: { address: string }[] } } }).context.contract.deployments) {
+      addressMap.set(address.toLowerCase(), { descriptor, rawLayout });
     }
   }
 }
@@ -65,7 +79,36 @@ function mapFieldValue(
   return { kind: "raw", value: String(raw) };
 }
 
-export function decodeCalldata(calldata: string): Erc7730DecodeResult {
+function decodeRawLayout(calldata: string, entry: RawLayoutEntry): Erc7730DecodeResult {
+  const hex = calldata.startsWith("0x") ? calldata.slice(2) : calldata;
+  const fields: DecodedField[] = entry.rawLayout.fields.map((field) => {
+    const start = field.byteOffset * 2;
+    const end = start + field.byteLength * 2;
+    const slice = hex.slice(start, end);
+    const isNumeric = field.format === "unit" || field.format === "amount";
+    const decoded: DecodedFieldValue = isNumeric
+      ? { kind: "uint256", value: BigInt(`0x${slice}`).toString() }
+      : { kind: "raw", value: `0x${slice}` };
+    return { label: field.label, format: field.format, params: field.params, decoded };
+  });
+
+  const amountField = fields.find((f) => f.format === "unit" || f.format === "amount");
+  const isFullExit = amountField?.decoded.value === "0";
+  const intent =
+    isFullExit && entry.rawLayout.zeroAmountIntent
+      ? entry.rawLayout.zeroAmountIntent
+      : entry.rawLayout.intent;
+
+  return {
+    kind: "matched",
+    intent,
+    contractName: entry.descriptor.metadata.contractName,
+    selector: "",
+    fields,
+  };
+}
+
+export function decodeCalldata(calldata: string, to?: string): Erc7730DecodeResult {
   if (!calldata || calldata === "0x" || calldata.length < 10) {
     return { kind: "unknown", selector: "0x", rawCalldata: calldata ?? "0x" };
   }
@@ -74,6 +117,10 @@ export function decodeCalldata(calldata: string): Erc7730DecodeResult {
   const entry = selectorMap.get(selector);
 
   if (!entry) {
+    if (to) {
+      const rawEntry = addressMap.get(to.toLowerCase());
+      if (rawEntry) return decodeRawLayout(calldata, rawEntry);
+    }
     return { kind: "unknown", selector, rawCalldata: calldata };
   }
 
